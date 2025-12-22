@@ -169,19 +169,40 @@ bool esperarBotonSL() {
 
 bool preguntarSiNo() {
   Serial.println(F("SR=Si / SL=No"));
+
+  // Leer estado inicial
+  int estadoSR_anterior = digitalRead(PIN_BUTTON_SR);
+  int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
+
   while (true) {
-    if (digitalRead(PIN_BUTTON_SR) == LOW) {
-      delay(200);
-      while (digitalRead(PIN_BUTTON_SR) == LOW) delay(10);
-      delay(300); // Delay adicional para evitar rebotes
-      return true;
+    // Leer estado actual
+    int estadoSR_actual = digitalRead(PIN_BUTTON_SR);
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+
+    // Detectar cambio en SR (presionado)
+    if (estadoSR_actual != estadoSR_anterior) {
+      delay(50); // Anti-rebote
+      estadoSR_actual = digitalRead(PIN_BUTTON_SR);
+      if (estadoSR_actual != estadoSR_anterior) {
+        delay(300); // Delay adicional
+        return true;
+      }
     }
-    if (digitalRead(PIN_BUTTON_SL) == LOW) {
-      delay(200);
-      while (digitalRead(PIN_BUTTON_SL) == LOW) delay(10);
-      delay(300); // Delay adicional para evitar rebotes
-      return false;
+
+    // Detectar cambio en SL (presionado)
+    if (estadoSL_actual != estadoSL_anterior) {
+      delay(50); // Anti-rebote
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        delay(300); // Delay adicional
+        return false;
+      }
     }
+
+    // Actualizar estados anteriores
+    estadoSR_anterior = estadoSR_actual;
+    estadoSL_anterior = estadoSL_actual;
+
     delay(10);
   }
 }
