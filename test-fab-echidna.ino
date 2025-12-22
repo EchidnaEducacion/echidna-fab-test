@@ -496,7 +496,9 @@ void testAcelerometro() {
 
   // Test Izquierda (X < -7.8)
   Serial.println(F("\nIncline la placa hacia la IZQUIERDA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passIzq = false;
+  int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
     sensors_event_t event;
@@ -513,12 +515,26 @@ void testAcelerometro() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Izquierda FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
 
   // Test Derecha (X > 7.8)
   Serial.println(F("\nIncline la placa hacia la DERECHA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passDer = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     sensors_event_t event;
@@ -535,12 +551,26 @@ void testAcelerometro() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Derecha FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
 
   // Test Arriba (Y > 7.8)
   Serial.println(F("\nIncline la placa ARRIBA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passArr = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     sensors_event_t event;
@@ -557,12 +587,26 @@ void testAcelerometro() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Arriba FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
 
   // Test Abajo (Y < -7.8)
   Serial.println(F("\nIncline la placa ABAJO"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passAba = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     sensors_event_t event;
@@ -578,6 +622,18 @@ void testAcelerometro() {
       delay(1000);
       break;
     }
+
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Abajo FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
 
     delay(SENSOR_READ_DELAY);
   }
