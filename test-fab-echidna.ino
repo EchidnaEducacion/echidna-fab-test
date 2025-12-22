@@ -656,6 +656,11 @@ void testModoMkMk() {
   Serial.println(F("Presione SR cuando este listo..."));
   esperarBotonSR();
 
+  // Reinicializar pines D2 y D3 antes del test
+  pinMode(PIN_BUTTON_SR, INPUT_PULLUP);
+  pinMode(PIN_BUTTON_SL, INPUT_PULLUP);
+  delay(100);
+
   // Pines a probar en modo MkMk
   int pinesAnalogicos[] = {A0, A1, A2, A3, A6, A7};
   String nombresAnalogicos[] = {"A0", "A1", "A2", "A3", "A6", "A7"};
@@ -706,11 +711,17 @@ void testModoMkMk() {
   for (int i = 0; i < numDigitales; i++) {
     Serial.print(F("\nTest "));
     Serial.println(nombresDigitales[i]);
+
+    // Debug: mostrar estado antes de cambiar pinMode
+    Serial.print(F("Estado antes (con PULLUP): "));
+    Serial.println(digitalRead(pinesDigitales[i]));
+
     Serial.print(F("Toque MkMk "));
     Serial.print(nombresDigitales[i]);
     Serial.println(F(" y Hombre MkMk"));
 
     pinMode(pinesDigitales[i], INPUT);
+    delay(10); // Pequeño delay para estabilizar
 
     bool pass = false;
     unsigned long startTime = millis();
