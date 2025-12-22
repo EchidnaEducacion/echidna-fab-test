@@ -16,8 +16,8 @@
 #define PIN_LED_NARANJA 12
 #define PIN_LED_ROJO 13
 #define PIN_RGB_R 9
-#define PIN_RGB_G 6
-#define PIN_RGB_B 5
+#define PIN_RGB_G 5
+#define PIN_RGB_B 6
 
 // Pulsadores
 #define PIN_BUTTON_SR 2  // Pulsador derecho (Sí/Correcto)
@@ -811,6 +811,7 @@ void testModoMkMk() {
 
   Serial.println(F("CAMBIE EL INTERRUPTOR A MODO MKMK"));
   Serial.println(F("Presione SR cuando este listo..."));
+  Serial.println(F("Si en 10 lecturas no se detecta el nivel alto, se considera test erróneo"));
   esperarBotonSR();
 
   // Reinicializar pines D2 y D3 antes del test
@@ -836,12 +837,19 @@ void testModoMkMk() {
     Serial.println(F(" y Hombre MkMk"));
 
     bool pass = false;
-    unsigned long startTime = millis();
-    while (millis() - startTime < 30000) {
+    int intentos = 0;
+    int maxIntentos = 10;
+
+    while (intentos < maxIntentos) {
       int valor = analogRead(pinesAnalogicos[i]);
       Serial.print(nombresAnalogicos[i]);
       Serial.print(F(": "));
-      Serial.println(valor);
+      Serial.print(valor);
+      Serial.print(F(" ("));
+      Serial.print(intentos + 1);
+      Serial.print(F("/"));
+      Serial.print(maxIntentos);
+      Serial.println(F(")"));
 
       if (valor > MKMK_THRESHOLD) {
         Serial.print(F("✓ "));
@@ -853,13 +861,16 @@ void testModoMkMk() {
         break;
       }
 
-      delay(SENSOR_READ_DELAY);
+      intentos++;
+      if (intentos < maxIntentos) {
+        delay(SENSOR_READ_DELAY);
+      }
     }
 
     if (!pass) {
       Serial.print(F("✗ "));
       Serial.print(nombresAnalogicos[i]);
-      Serial.println(F(" TIMEOUT"));
+      Serial.println(F(" FAIL (5 intentos sin exito)"));
       results.mkMkFail++;
     }
   }
@@ -881,12 +892,19 @@ void testModoMkMk() {
     delay(10); // Pequeño delay para estabilizar
 
     bool pass = false;
-    unsigned long startTime = millis();
-    while (millis() - startTime < 30000) {
+    int intentos = 0;
+    int maxIntentos = 5;
+
+    while (intentos < maxIntentos) {
       int valor = digitalRead(pinesDigitales[i]);
       Serial.print(nombresDigitales[i]);
       Serial.print(F(": "));
-      Serial.println(valor);
+      Serial.print(valor);
+      Serial.print(F(" ("));
+      Serial.print(intentos + 1);
+      Serial.print(F("/"));
+      Serial.print(maxIntentos);
+      Serial.println(F(")"));
 
       if (valor == HIGH) {
         Serial.print(F("✓ "));
@@ -898,13 +916,16 @@ void testModoMkMk() {
         break;
       }
 
-      delay(SENSOR_READ_DELAY);
+      intentos++;
+      if (intentos < maxIntentos) {
+        delay(SENSOR_READ_DELAY);
+      }
     }
 
     if (!pass) {
       Serial.print(F("✗ "));
       Serial.print(nombresDigitales[i]);
-      Serial.println(F(" TIMEOUT"));
+      Serial.println(F(" FAIL (5 intentos sin exito)"));
       results.mkMkFail++;
     }
 
