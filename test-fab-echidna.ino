@@ -599,8 +599,10 @@ void testLDR() {
   esperarBotonesLibres();
 
   Serial.println(F("\nCubra completamente el LDR"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
 
   bool passLDR = false;
+  int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
     int valor = analogRead(PIN_LDR);
@@ -613,6 +615,19 @@ void testLDR() {
       delay(1000);
       break;
     }
+
+    // Detectar cambio de estado en SL
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ LDR FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
 
     delay(SENSOR_READ_DELAY);
   }
