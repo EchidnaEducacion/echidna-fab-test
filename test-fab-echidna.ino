@@ -335,7 +335,9 @@ void testJoystick() {
 
   // Test Izquierda (JoyX < 5)
   Serial.println(F("\nMueva el joystick a la IZQUIERDA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passIzq = false;
+  int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
     int valorX = analogRead(PIN_JOY_X);
@@ -349,15 +351,30 @@ void testJoystick() {
       break;
     }
 
+    // Detectar cambio de estado en SL (presión del botón)
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50); // Anti-rebote
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Izquierda FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
-  if (!passIzq) {
+  if (!passIzq && millis() - startTime >= 30000) {
     Serial.println(F("✗ Izquierda TIMEOUT"));
   }
 
   // Test Derecha (JoyX > 1018)
   Serial.println(F("\nMueva el joystick a la DERECHA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passDer = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     int valorX = analogRead(PIN_JOY_X);
@@ -371,15 +388,29 @@ void testJoystick() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Derecha FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
-  if (!passDer) {
+  if (!passDer && millis() - startTime >= 30000) {
     Serial.println(F("✗ Derecha TIMEOUT"));
   }
 
   // Test Arriba (JoyY > 1018)
   Serial.println(F("\nMueva el joystick ARRIBA"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passArr = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     int valorY = analogRead(PIN_JOY_Y);
@@ -393,15 +424,29 @@ void testJoystick() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Arriba FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
-  if (!passArr) {
+  if (!passArr && millis() - startTime >= 30000) {
     Serial.println(F("✗ Arriba TIMEOUT"));
   }
 
   // Test Abajo (JoyY < 5)
   Serial.println(F("\nMueva el joystick ABAJO"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
   bool passAba = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
   while (millis() - startTime < 30000) {
     int valorY = analogRead(PIN_JOY_Y);
@@ -415,9 +460,21 @@ void testJoystick() {
       break;
     }
 
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Abajo FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
     delay(SENSOR_READ_DELAY);
   }
-  if (!passAba) {
+  if (!passAba && millis() - startTime >= 30000) {
     Serial.println(F("✗ Abajo TIMEOUT"));
   }
 
