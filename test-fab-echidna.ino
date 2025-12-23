@@ -52,6 +52,7 @@
 
 // MkMk
 #define MKMK_THRESHOLD 100
+#define MKMK_MAX_INTENTOS 10
 
 // Tiempo de actualización de lecturas
 #define SENSOR_READ_DELAY 500
@@ -72,6 +73,14 @@ struct TestResults {
 };
 
 TestResults results = {0, 0, 0, 0, 0, 0};
+
+// Arrays para guardar nombres de tests fallidos
+String testsFallidosActuadores[10];
+int numTestsFallidosActuadores = 0;
+String testsFallidosSensores[10];
+int numTestsFallidosSensores = 0;
+String testsFallidosMkMk[10];
+int numTestsFallidosMkMk = 0;
 
 // ============================================
 // SETUP
@@ -281,6 +290,7 @@ void testLEDs() {
   } else {
     Serial.println(F("✗ LEDs FAIL\n"));
     results.normalActuadoresFail++;
+    testsFallidosActuadores[numTestsFallidosActuadores++] = "LEDs (Verde, Naranja, Rojo)";
   }
 }
 
@@ -317,6 +327,7 @@ void testLEDRGB() {
   } else {
     Serial.println(F("✗ LED RGB FAIL\n"));
     results.normalActuadoresFail++;
+    testsFallidosActuadores[numTestsFallidosActuadores++] = "LED RGB";
   }
 }
 
@@ -344,6 +355,7 @@ void testZumbador() {
   } else {
     Serial.println(F("✗ Zumbador FAIL\n"));
     results.normalActuadoresFail++;
+    testsFallidosActuadores[numTestsFallidosActuadores++] = "Zumbador";
   }
 }
 
@@ -514,6 +526,7 @@ void testJoystick() {
   } else {
     Serial.println(F("\n✗ Joystick FAIL\n"));
     results.normalSensoresFail++;
+    testsFallidosSensores[numTestsFallidosSensores++] = "Joystick";
   }
 }
 
@@ -746,6 +759,7 @@ void testAcelerometro() {
   } else {
     Serial.println(F("\n✗ Acelerometro FAIL\n"));
     results.normalSensoresFail++;
+    testsFallidosSensores[numTestsFallidosSensores++] = "Acelerometro";
   }
 }
 
@@ -795,6 +809,7 @@ void testLDR() {
   } else {
     Serial.println(F("\n✗ LDR FAIL\n"));
     results.normalSensoresFail++;
+    testsFallidosSensores[numTestsFallidosSensores++] = "LDR (Sensor de luz)";
   }
 }
 
@@ -830,6 +845,7 @@ void testTemperatura() {
   } else {
     Serial.println(F("✗ Temperatura FAIL\n"));
     results.normalSensoresFail++;
+    testsFallidosSensores[numTestsFallidosSensores++] = "Sensor de Temperatura";
   }
 }
 
@@ -870,6 +886,7 @@ void testMicrofono() {
   } else {
     Serial.println(F("\n✗ Microfono FAIL\n"));
     results.normalSensoresFail++;
+    testsFallidosSensores[numTestsFallidosSensores++] = "Microfono";
   }
 }
 
@@ -883,7 +900,9 @@ void testModoMkMk() {
 
   Serial.println(F("CAMBIE EL INTERRUPTOR A MODO MKMK"));
   Serial.println(F("Presione SR cuando este listo..."));
-  Serial.println(F("Si en 10 lecturas no se detecta el nivel alto, se considera test erróneo"));
+  Serial.print(F("Si en "));
+  Serial.print(MKMK_MAX_INTENTOS);
+  Serial.println(F(" lecturas no se detecta el nivel alto, se considera test erroneo"));
   esperarBotonSR();
 
   // Reinicializar pines D2 y D3 antes del test
@@ -910,9 +929,8 @@ void testModoMkMk() {
 
     bool pass = false;
     int intentos = 0;
-    int maxIntentos = 10;
 
-    while (intentos < maxIntentos) {
+    while (intentos < MKMK_MAX_INTENTOS) {
       int valor = analogRead(pinesAnalogicos[i]);
       Serial.print(nombresAnalogicos[i]);
       Serial.print(F(": "));
@@ -920,7 +938,7 @@ void testModoMkMk() {
       Serial.print(F(" ("));
       Serial.print(intentos + 1);
       Serial.print(F("/"));
-      Serial.print(maxIntentos);
+      Serial.print(MKMK_MAX_INTENTOS);
       Serial.println(F(")"));
 
       if (valor > MKMK_THRESHOLD) {
@@ -934,7 +952,7 @@ void testModoMkMk() {
       }
 
       intentos++;
-      if (intentos < maxIntentos) {
+      if (intentos < MKMK_MAX_INTENTOS) {
         delay(SENSOR_READ_DELAY);
       }
     }
@@ -942,8 +960,11 @@ void testModoMkMk() {
     if (!pass) {
       Serial.print(F("✗ "));
       Serial.print(nombresAnalogicos[i]);
-      Serial.println(F(" FAIL (5 intentos sin exito)"));
+      Serial.print(F(" FAIL ("));
+      Serial.print(MKMK_MAX_INTENTOS);
+      Serial.println(F(" intentos sin exito)"));
       results.mkMkFail++;
+      testsFallidosMkMk[numTestsFallidosMkMk++] = "Pin " + nombresAnalogicos[i];
     }
   }
 
@@ -965,9 +986,8 @@ void testModoMkMk() {
 
     bool pass = false;
     int intentos = 0;
-    int maxIntentos = 5;
 
-    while (intentos < maxIntentos) {
+    while (intentos < MKMK_MAX_INTENTOS) {
       int valor = digitalRead(pinesDigitales[i]);
       Serial.print(nombresDigitales[i]);
       Serial.print(F(": "));
@@ -975,7 +995,7 @@ void testModoMkMk() {
       Serial.print(F(" ("));
       Serial.print(intentos + 1);
       Serial.print(F("/"));
-      Serial.print(maxIntentos);
+      Serial.print(MKMK_MAX_INTENTOS);
       Serial.println(F(")"));
 
       if (valor == HIGH) {
@@ -989,7 +1009,7 @@ void testModoMkMk() {
       }
 
       intentos++;
-      if (intentos < maxIntentos) {
+      if (intentos < MKMK_MAX_INTENTOS) {
         delay(SENSOR_READ_DELAY);
       }
     }
@@ -997,8 +1017,11 @@ void testModoMkMk() {
     if (!pass) {
       Serial.print(F("✗ "));
       Serial.print(nombresDigitales[i]);
-      Serial.println(F(" FAIL (5 intentos sin exito)"));
+      Serial.print(F(" FAIL ("));
+      Serial.print(MKMK_MAX_INTENTOS);
+      Serial.println(F(" intentos sin exito)"));
       results.mkMkFail++;
+      testsFallidosMkMk[numTestsFallidosMkMk++] = "Pin " + nombresDigitales[i];
     }
 
     // Restaurar configuración de pines
@@ -1024,10 +1047,27 @@ void reporteFinal() {
   Serial.println(results.normalActuadores);
   Serial.print(F("Actuadores FAIL: "));
   Serial.println(results.normalActuadoresFail);
+
+  if (numTestsFallidosActuadores > 0) {
+    Serial.println(F("  Tests fallidos:"));
+    for (int i = 0; i < numTestsFallidosActuadores; i++) {
+      Serial.print(F("    - "));
+      Serial.println(testsFallidosActuadores[i]);
+    }
+  }
+
   Serial.print(F("Sensores OK: "));
   Serial.println(results.normalSensores);
   Serial.print(F("Sensores FAIL: "));
   Serial.println(results.normalSensoresFail);
+
+  if (numTestsFallidosSensores > 0) {
+    Serial.println(F("  Tests fallidos:"));
+    for (int i = 0; i < numTestsFallidosSensores; i++) {
+      Serial.print(F("    - "));
+      Serial.println(testsFallidosSensores[i]);
+    }
+  }
 
   int totalNormal = results.normalActuadores + results.normalSensores;
   int totalNormalFail = results.normalActuadoresFail + results.normalSensoresFail;
@@ -1041,6 +1081,14 @@ void reporteFinal() {
   Serial.println(results.mkMk);
   Serial.print(F("Pines FAIL: "));
   Serial.println(results.mkMkFail);
+
+  if (numTestsFallidosMkMk > 0) {
+    Serial.println(F("  Pines fallidos:"));
+    for (int i = 0; i < numTestsFallidosMkMk; i++) {
+      Serial.print(F("    - "));
+      Serial.println(testsFallidosMkMk[i]);
+    }
+  }
 
   Serial.print(F("\nTotal Modo MkMk OK: "));
   Serial.print(results.mkMk);

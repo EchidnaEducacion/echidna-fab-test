@@ -109,6 +109,8 @@ Los sensores se prueban automáticamente. El programa mostrará el valor leído 
    - Inclina la placa a la derecha
    - Inclina la placa arriba
    - Inclina la placa abajo
+   - Coloca la placa boca arriba (componentes hacia arriba)
+   - Coloca la placa boca abajo (componentes hacia abajo)
    - El test pasa automáticamente cuando detecta la inclinación correcta
    - Presiona **SL** para saltar si no funciona
 
@@ -134,14 +136,18 @@ Los sensores se prueban automáticamente. El programa mostrará el valor leído 
 3. Para cada pin (A0, A1, A2, A3, A6, A7, D2, D3):
    - Toca simultáneamente el pin MkMk correspondiente y el pin "Hombre MkMk"
    - El test pasa automáticamente cuando detecta la conexión
-   - Si un pin no pasa después de 30 segundos, el programa continúa automáticamente
+   - Cada pin tiene **10 intentos** (configurable con `MKMK_MAX_INTENTOS`)
+   - Si un pin no pasa después de los intentos, el programa continúa automáticamente
 
 #### 3. Reporte Final
 
 Al finalizar todos los tests, el programa muestra:
 - Número de actuadores OK/FAIL en Modo Normal
+  - **Lista detallada de actuadores que fallaron** (si hay fallos)
 - Número de sensores OK/FAIL en Modo Normal
+  - **Lista detallada de sensores que fallaron** (si hay fallos)
 - Número de pines OK/FAIL en Modo MkMk
+  - **Lista detallada de pines que fallaron** (si hay fallos)
 - Porcentaje total de éxito
 - Indicador visual del resultado global
 
@@ -176,7 +182,7 @@ Pines testeables: A0, A1, A2, A3, A6, A7, D2, D3
 
 ## Configuración y Umbrales
 
-Los siguientes umbrales pueden ajustarse al inicio del archivo `.ino`:
+Los siguientes umbrales y parámetros pueden ajustarse al inicio del archivo `.ino`:
 
 ```cpp
 // Joystick
@@ -195,10 +201,21 @@ Los siguientes umbrales pueden ajustarse al inicio del archivo `.ino`:
 
 // MkMk
 #define MKMK_THRESHOLD 100         // Valor mínimo analógico para conexión
+#define MKMK_MAX_INTENTOS 10       // Número de intentos por pin en modo MkMk
 
 // Tiempo de actualización (ms)
 #define SENSOR_READ_DELAY 500      // Frecuencia de lectura de sensores
 ```
+
+### Notas sobre constantes
+
+- **JOY_THRESHOLD_LOW/HIGH**: Valores ADC del joystick (0-1023) para detectar movimientos extremos
+- **ACCEL_THRESHOLD_LOW/HIGH**: Umbrales en m/s² para detectar inclinación. Valores de ±7.8 corresponden a ~0.8g
+- **LDR_THRESHOLD_DARK**: Valor ADC por debajo del cual se considera oscuro
+- **MIC_THRESHOLD_NOISE**: Amplitud mínima (desviación del punto medio 512) para detectar sonido
+- **MKMK_THRESHOLD**: Valor ADC mínimo para considerar que hay conexión en modo MkMk
+- **MKMK_MAX_INTENTOS**: Controla el número de intentos para cada pin en modo MkMk. Centraliza este valor para mantener coherencia en todos los mensajes
+- **SENSOR_READ_DELAY**: Tiempo en ms entre lecturas sucesivas de sensores
 
 ## Solución de Problemas
 
@@ -269,12 +286,16 @@ test-fab-echidna.ino
 ## Notas Técnicas
 
 - **Timeout por test**: 30 segundos para evitar bloqueos
+- **Intentos en modo MkMk**: 10 intentos por pin (configurable con `MKMK_MAX_INTENTOS`)
 - **Debounce de pulsadores**: 200ms
 - **Dirección I2C del acelerómetro**: 0x18
 - **Acelerómetro**: Usa librería Adafruit LIS3DH con valores en m/s² (1g ≈ 9.8 m/s²)
-- **Frecuencia de actualización**: 500ms (configurable)
+  - **Tests del acelerómetro**: 6 pruebas (izquierda, derecha, arriba, abajo, boca arriba, boca abajo)
+  - Los tests de boca arriba/abajo verifican el eje Z midiendo la gravedad (±9.8 m/s²)
+- **Frecuencia de actualización**: 500ms (configurable con `SENSOR_READ_DELAY`)
 - **Pull-up en pulsadores**: Activado internamente
 - **Conversión de temperatura**: Asume sensor tipo TMP36
+- **Reporte de fallos**: El reporte final incluye una lista detallada de qué tests específicos fallaron
 
 ## Autor
 
