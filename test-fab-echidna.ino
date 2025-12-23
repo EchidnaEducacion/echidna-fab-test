@@ -667,7 +667,79 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  bool accelOK = passIzq && passDer && passArr && passAba;
+  // Test Boca Arriba (Z > 7.8)
+  Serial.println(F("\nColoque la placa BOCA ARRIBA (componentes hacia arriba)"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
+  bool passBocaArriba = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
+  startTime = millis();
+  while (millis() - startTime < 30000) {
+    sensors_event_t event;
+    lis.getEvent(&event);
+    float z = event.acceleration.z;
+
+    Serial.print(F("Accel Z: "));
+    Serial.println(z, 2);
+
+    if (z > ACCEL_THRESHOLD_HIGH) {
+      Serial.println(F("✓ Boca Arriba OK"));
+      passBocaArriba = true;
+      delay(1000);
+      break;
+    }
+
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Boca Arriba FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
+    delay(SENSOR_READ_DELAY);
+  }
+
+  // Test Boca Abajo (Z < -7.8)
+  Serial.println(F("\nColoque la placa BOCA ABAJO (componentes hacia abajo)"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
+  bool passBocaAbajo = false;
+  estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
+  startTime = millis();
+  while (millis() - startTime < 30000) {
+    sensors_event_t event;
+    lis.getEvent(&event);
+    float z = event.acceleration.z;
+
+    Serial.print(F("Accel Z: "));
+    Serial.println(z, 2);
+
+    if (z < ACCEL_THRESHOLD_LOW) {
+      Serial.println(F("✓ Boca Abajo OK"));
+      passBocaAbajo = true;
+      delay(1000);
+      break;
+    }
+
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50);
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Boca Abajo FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
+
+    delay(SENSOR_READ_DELAY);
+  }
+
+  bool accelOK = passIzq && passDer && passArr && passAba && passBocaArriba && passBocaAbajo;
   if (accelOK) {
     Serial.println(F("\n✓ Acelerometro completo OK\n"));
     results.normalSensores++;
