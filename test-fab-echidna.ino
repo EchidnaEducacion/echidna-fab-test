@@ -825,15 +825,14 @@ void testTemperatura() {
   }
   int valorPromedio = suma / 10;
 
-  // Convertir a grados (aproximado, depende del sensor específico)
-  // Asumiendo un sensor tipo TMP36: (valor * 5000 / 1024 - 500) / 10
-  float voltaje = valorPromedio * 5000.0 / 1024.0;
-  float temperatura = (voltaje - 500) / 10.0;
+  // Convertir a grados usando la fórmula del sensor
+  // Fórmula: (valorADC * 0.4658) - 50.0
+  float temperatura = (valorPromedio * 0.4658) - 50.0;
 
   Serial.print(F("Lectura ADC: "));
   Serial.println(valorPromedio);
-  Serial.print(F("Temperatura aprox: "));
-  Serial.print(temperatura);
+  Serial.print(F("Temperatura: "));
+  Serial.print(temperatura, 2);
   Serial.println(F(" C"));
 
   Serial.println(F("\n¿Es la lectura correcta?"));

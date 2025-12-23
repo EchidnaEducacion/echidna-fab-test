@@ -294,7 +294,7 @@ test-fab-echidna.ino
   - Los tests de boca arriba/abajo verifican el eje Z midiendo la gravedad (±9.8 m/s²)
 - **Frecuencia de actualización**: 500ms (configurable con `SENSOR_READ_DELAY`)
 - **Pull-up en pulsadores**: Activado internamente
-- **Conversión de temperatura**: Asume sensor tipo TMP36
+- **Conversión de temperatura**: Fórmula `(valorADC * 0.4658) - 50.0` para obtener grados Celsius
 - **Reporte de fallos**: El reporte final incluye una lista detallada de qué tests específicos fallaron
 
 ## Autor
