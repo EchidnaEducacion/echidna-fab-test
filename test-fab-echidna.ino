@@ -1,6 +1,6 @@
 /*
- * Test FAB Echidna - Programa de test para placa educativa Arduino Nano
- * Prueba secuencial de actuadores y sensores en modo Normal y modo MkMk
+ * Test FAB Echidna - Test program for Arduino Nano educational board
+ * Sequential test of actuators and sensors in Normal mode and MkMk mode
  */
 
 #include <Wire.h>
@@ -8,152 +8,152 @@
 #include <Adafruit_Sensor.h>
 
 // ============================================
-// DEFINICIÓN DE PINES - MODO NORMAL
+// PIN DEFINITIONS - NORMAL MODE
 // ============================================
-// Actuadores
+// Actuators
 #define PIN_BUZZER 10
-#define PIN_LED_VERDE 11
-#define PIN_LED_NARANJA 12
-#define PIN_LED_ROJO 13
+#define PIN_LED_GREEN 11
+#define PIN_LED_ORANGE 12
+#define PIN_LED_RED 13
 #define PIN_RGB_R 9
 #define PIN_RGB_G 5
 #define PIN_RGB_B 6
 
-// Pulsadores
-#define PIN_BUTTON_SR 2  // Pulsador derecho (Sí/Correcto)
-#define PIN_BUTTON_SL 3  // Pulsador izquierdo (No/Incorrecto)
+// Buttons
+#define PIN_BUTTON_SR 2  // Right button (Yes/Correct)
+#define PIN_BUTTON_SL 3  // Left button (No/Incorrect)
 
-// Sensores analógicos
+// Analog sensors
 #define PIN_JOY_X A0
 #define PIN_JOY_Y A1
 #define PIN_LDR A3
 #define PIN_TEMP A6
 #define PIN_MIC A7
 
-// I2C - Acelerómetro
+// I2C - Accelerometer
 #define LIS3DHTR_ADDR 0x18
 
 // ============================================
-// UMBRALES DE SENSORES
+// SENSOR THRESHOLDS
 // ============================================
 // Joystick
 #define JOY_THRESHOLD_LOW 5
 #define JOY_THRESHOLD_HIGH 1018
 
-// Acelerómetro (valores en m/s²)
+// Accelerometer (values in m/s²)
 #define ACCEL_THRESHOLD_LOW -7.8
 #define ACCEL_THRESHOLD_HIGH 7.8
 
 // LDR
 #define LDR_THRESHOLD_DARK 30
 
-// Micrófono
+// Microphone
 #define MIC_THRESHOLD_NOISE 100
 
 // MkMk
 #define MKMK_THRESHOLD 100
-#define MKMK_MAX_INTENTOS 10
+#define MKMK_MAX_ATTEMPTS 10
 
-// Tiempo de actualización de lecturas
+// Reading update time
 #define SENSOR_READ_DELAY 500
 
 // ============================================
-// VARIABLES GLOBALES
+// GLOBAL VARIABLES
 // ============================================
 Adafruit_LIS3DH lis = Adafruit_LIS3DH();
 
-// Estructura para guardar resultados
+// Structure to store results
 struct TestResults {
-  int normalActuadores;
-  int normalSensores;
+  int normalActuators;
+  int normalSensors;
   int mkMk;
-  int normalActuadoresFail;
-  int normalSensoresFail;
+  int normalActuatorsFail;
+  int normalSensorsFail;
   int mkMkFail;
 };
 
 TestResults results = {0, 0, 0, 0, 0, 0};
 
-// Arrays para guardar nombres de tests fallidos
-String testsFallidosActuadores[10];
-int numTestsFallidosActuadores = 0;
-String testsFallidosSensores[10];
-int numTestsFallidosSensores = 0;
-String testsFallidosMkMk[10];
-int numTestsFallidosMkMk = 0;
+// Arrays to store failed test names
+String failedActuatorTests[10];
+int numFailedActuatorTests = 0;
+String failedSensorTests[10];
+int numFailedSensorTests = 0;
+String failedMkMkTests[10];
+int numFailedMkMkTests = 0;
 
 // ============================================
 // SETUP
 // ============================================
 void setup() {
   Serial.begin(9600);
-  while (!Serial); // Esperar conexión serial
+  while (!Serial); // Wait for serial connection
 
-  // Configurar pines de salida
+  // Configure output pins
   pinMode(PIN_BUZZER, OUTPUT);
-  pinMode(PIN_LED_VERDE, OUTPUT);
-  pinMode(PIN_LED_NARANJA, OUTPUT);
-  pinMode(PIN_LED_ROJO, OUTPUT);
+  pinMode(PIN_LED_GREEN, OUTPUT);
+  pinMode(PIN_LED_ORANGE, OUTPUT);
+  pinMode(PIN_LED_RED, OUTPUT);
   pinMode(PIN_RGB_R, OUTPUT);
   pinMode(PIN_RGB_G, OUTPUT);
   pinMode(PIN_RGB_B, OUTPUT);
 
-  // Configurar pines de entrada
+  // Configure input pins
   pinMode(PIN_BUTTON_SR, INPUT_PULLUP);
   pinMode(PIN_BUTTON_SL, INPUT_PULLUP);
 
-  // Apagar todos los actuadores
-  apagarActuadores();
+  // Turn off all actuators
+  turnOffActuators();
 
-  // Inicializar acelerómetro
+  // Initialize accelerometer
   if (lis.begin(LIS3DHTR_ADDR)) {
     lis.setRange(LIS3DH_RANGE_2_G);
     lis.setDataRate(LIS3DH_DATARATE_50_HZ);
-    Serial.println(F("Acelerometro inicializado correctamente"));
+    Serial.println(F("Accelerometer initialized successfully"));
   } else {
-    Serial.println(F("ERROR: No se pudo inicializar el acelerometro"));
+    Serial.println(F("ERROR: Could not initialize accelerometer"));
   }
 
   delay(1000);
 }
 
 // ============================================
-// LOOP PRINCIPAL
+// MAIN LOOP
 // ============================================
 void loop() {
   Serial.println(F("\n========================================"));
-  Serial.println(F("TEST FAB ECHIDNA - Inicio"));
+  Serial.println(F("FAB ECHIDNA TEST - Start"));
   Serial.println(F("========================================\n"));
 
-  // Test Modo Normal
-  testModoNormal();
+  // Test Normal Mode
+  testNormalMode();
 
-  // Test Modo MkMk
-  testModoMkMk();
+  // Test MkMk Mode
+  testMkMkMode();
 
-  // Reporte final
-  reporteFinal();
+  // Final Report
+  finalReport();
 
-  // Esperar para reiniciar
-  Serial.println(F("\n\nTest completado. Presione RESET para reiniciar."));
-  while (true); // Detener ejecución
+  // Wait to restart
+  Serial.println(F("\n\nTest completed. Press RESET to restart."));
+  while (true); // Stop execution
 }
 
 // ============================================
-// FUNCIONES DE UTILIDAD
+// UTILITY FUNCTIONS
 // ============================================
-void apagarActuadores() {
-  digitalWrite(PIN_LED_VERDE, LOW);
-  digitalWrite(PIN_LED_NARANJA, LOW);
-  digitalWrite(PIN_LED_ROJO, LOW);
+void turnOffActuators() {
+  digitalWrite(PIN_LED_GREEN, LOW);
+  digitalWrite(PIN_LED_ORANGE, LOW);
+  digitalWrite(PIN_LED_RED, LOW);
   digitalWrite(PIN_RGB_R, LOW);
   digitalWrite(PIN_RGB_G, LOW);
   digitalWrite(PIN_RGB_B, LOW);
   digitalWrite(PIN_BUZZER, LOW);
 }
 
-bool esperarBotonSR() {
-  Serial.println(F("Presione SR (pulsador derecho) para continuar..."));
+bool waitForButtonSR() {
+  Serial.println(F("Press SR (right button) to continue..."));
   while (digitalRead(PIN_BUTTON_SR) == HIGH) {
     delay(10);
   }
@@ -164,8 +164,8 @@ bool esperarBotonSR() {
   return true;
 }
 
-bool esperarBotonSL() {
-  Serial.println(F("Presione SL (pulsador izquierdo) para continuar..."));
+bool waitForButtonSL() {
+  Serial.println(F("Press SL (left button) to continue..."));
   while (digitalRead(PIN_BUTTON_SL) == HIGH) {
     delay(10);
   }
@@ -176,47 +176,47 @@ bool esperarBotonSL() {
   return true;
 }
 
-bool preguntarSiNo() {
-  Serial.println(F("SR=Si / SL=No"));
+bool askYesNo() {
+  Serial.println(F("SR=Yes / SL=No"));
 
-  // Esperar estabilización y limpiar rebotes
+  // Wait for stabilization and debounce
   delay(500);
 
-  // Leer estado inicial estable
+  // Read stable initial state
   int estadoSR_anterior = digitalRead(PIN_BUTTON_SR);
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
 
   unsigned long tiempoInicio = millis();
 
   while (true) {
-    // Leer estado actual
+    // Read current state
     int estadoSR_actual = digitalRead(PIN_BUTTON_SR);
     int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
 
-    // Solo detectar cambios después de 500ms adicionales (evitar cambios iniciales)
+    // Only detect changes after additional 500ms (avoid initial changes)
     if (millis() - tiempoInicio > 500) {
-      // Detectar cambio en SR (presionado)
+      // Detect change in SR (pressed)
       if (estadoSR_actual != estadoSR_anterior) {
-        delay(50); // Anti-rebote
+        delay(50); // Anti-bounce
         estadoSR_actual = digitalRead(PIN_BUTTON_SR);
         if (estadoSR_actual != estadoSR_anterior) {
-          delay(300); // Delay adicional
+          delay(300); // Additional delay
           return true;
         }
       }
 
-      // Detectar cambio en SL (presionado)
+      // Detect change in SL (pressed)
       if (estadoSL_actual != estadoSL_anterior) {
-        delay(50); // Anti-rebote
+        delay(50); // Anti-bounce
         estadoSL_actual = digitalRead(PIN_BUTTON_SL);
         if (estadoSL_actual != estadoSL_anterior) {
-          delay(300); // Delay adicional
+          delay(300); // Additional delay
           return false;
         }
       }
     }
 
-    // Actualizar estados anteriores
+    // Update previous states
     estadoSR_anterior = estadoSR_actual;
     estadoSL_anterior = estadoSL_actual;
 
@@ -224,119 +224,119 @@ bool preguntarSiNo() {
   }
 }
 
-void esperarBotonesLibres() {
-  // Delay para limpiar rebotes y estabilizar lecturas
+void waitForButtonsReleased() {
+  // Delay to clear bounces and stabilize readings
   delay(500);
 }
 
 // ============================================
-// TEST MODO NORMAL
+// TEST NORMAL MODE
 // ============================================
-void testModoNormal() {
+void testNormalMode() {
   Serial.println(F("\n****************************************"));
-  Serial.println(F("INICIO TEST MODO NORMAL"));
+  Serial.println(F("START NORMAL MODE TEST"));
   Serial.println(F("****************************************\n"));
 
-  Serial.println(F("Para comenzar el test:"));
-  Serial.println(F("1. Presione SR (pulsador derecho)"));
-  Serial.println(F("2. Luego presione SL (pulsador izquierdo)"));
+  Serial.println(F("To begin the test:"));
+  Serial.println(F("1. Press SR (right button)"));
+  Serial.println(F("2. Then press SL (left button)"));
 
-  esperarBotonSR();
-  esperarBotonSL();
+  waitForButtonSR();
+  waitForButtonSL();
 
-  Serial.println(F("\nPulsadores verificados!"));
-  Serial.println(F("\n--- COMENZANDO TEST DE ACTUADORES ---\n"));
+  Serial.println(F("\nButtons verified!"));
+  Serial.println(F("\n--- STARTING ACTUATORS TEST ---\n"));
 
-  // Test Actuadores
+  // Test Actuators
   testLEDs();
   testLEDRGB();
-  testZumbador();
+  testBuzzer();
 
-  Serial.println(F("\n--- COMENZANDO TEST DE SENSORES ---\n"));
+  Serial.println(F("\n--- STARTING SENSORS TEST ---\n"));
 
-  // Test Sensores
+  // Test Sensors
   testJoystick();
-  testAcelerometro();
+  testAccelerometer();
   testLDR();
-  testTemperatura();
-  testMicrofono();
+  testTemperature();
+  testMicrophone();
 
   Serial.println(F("\n****************************************"));
-  Serial.println(F("FIN TEST MODO NORMAL"));
+  Serial.println(F("END NORMAL MODE TEST"));
   Serial.println(F("****************************************\n"));
 }
 
 // ============================================
-// TEST DE ACTUADORES
+// ACTUATORS TEST
 // ============================================
 void testLEDs() {
-  Serial.println(F("TEST A: LEDs (Verde, Naranja, Rojo)"));
-  Serial.println(F("Encendiendo los 3 LEDs..."));
+  Serial.println(F("TEST A: LEDs (Green, Orange, Red)"));
+  Serial.println(F("Turning on the 3 LEDs..."));
 
-  digitalWrite(PIN_LED_VERDE, HIGH);
-  digitalWrite(PIN_LED_NARANJA, HIGH);
-  digitalWrite(PIN_LED_ROJO, HIGH);
+  digitalWrite(PIN_LED_GREEN, HIGH);
+  digitalWrite(PIN_LED_ORANGE, HIGH);
+  digitalWrite(PIN_LED_RED, HIGH);
 
-  Serial.println(F("¿Estan los 3 LEDs encendidos?"));
-  bool resultado = preguntarSiNo();
+  Serial.println(F("Are the 3 LEDs on?"));
+  bool resultado = askYesNo();
 
-  digitalWrite(PIN_LED_VERDE, LOW);
-  digitalWrite(PIN_LED_NARANJA, LOW);
-  digitalWrite(PIN_LED_ROJO, LOW);
+  digitalWrite(PIN_LED_GREEN, LOW);
+  digitalWrite(PIN_LED_ORANGE, LOW);
+  digitalWrite(PIN_LED_RED, LOW);
 
   if (resultado) {
     Serial.println(F("✓ LEDs OK\n"));
-    results.normalActuadores++;
+    results.normalActuators++;
   } else {
     Serial.println(F("✗ LEDs FAIL\n"));
-    results.normalActuadoresFail++;
-    testsFallidosActuadores[numTestsFallidosActuadores++] = "LEDs (Verde, Naranja, Rojo)";
+    results.normalActuatorsFail++;
+    failedActuatorTests[numFailedActuatorTests++] = "LEDs (Green, Orange, Red)";
   }
 }
 
 void testLEDRGB() {
   Serial.println(F("TEST B: LED RGB"));
-  Serial.println(F("Mostrando 3 colores consecutivamente..."));
+  Serial.println(F("Showing 3 colors consecutively..."));
 
-  // Rojo
-  Serial.println(F("Color 1: Rojo"));
+  // Red
+  Serial.println(F("Color 1: Red"));
   digitalWrite(PIN_RGB_R, HIGH);
   delay(1500);
   digitalWrite(PIN_RGB_R, LOW);
   delay(500);
 
-  // Verde
-  Serial.println(F("Color 2: Verde"));
+  // Green
+  Serial.println(F("Color 2: Green"));
   digitalWrite(PIN_RGB_G, HIGH);
   delay(1500);
   digitalWrite(PIN_RGB_G, LOW);
   delay(500);
 
-  // Azul
-  Serial.println(F("Color 3: Azul"));
+  // Blue
+  Serial.println(F("Color 3: Blue"));
   digitalWrite(PIN_RGB_B, HIGH);
   delay(1500);
   digitalWrite(PIN_RGB_B, LOW);
 
-  Serial.println(F("¿Se han visto los 3 colores?"));
-  bool resultado = preguntarSiNo();
+  Serial.println(F("Have all 3 colors been seen?"));
+  bool resultado = askYesNo();
 
   if (resultado) {
     Serial.println(F("✓ LED RGB OK\n"));
-    results.normalActuadores++;
+    results.normalActuators++;
   } else {
     Serial.println(F("✗ LED RGB FAIL\n"));
-    results.normalActuadoresFail++;
-    testsFallidosActuadores[numTestsFallidosActuadores++] = "LED RGB";
+    results.normalActuatorsFail++;
+    failedActuatorTests[numFailedActuatorTests++] = "LED RGB";
   }
 }
 
-void testZumbador() {
-  Serial.println(F("TEST C: Zumbador"));
-  Serial.println(F("Emitiendo pitido intermitente..."));
-  Serial.println(F("(Ajustar volumen con potenciometro si es necesario)"));
+void testBuzzer() {
+  Serial.println(F("TEST C: Buzzer"));
+  Serial.println(F("Emitting intermittent beep..."));
+  Serial.println(F("(Adjust volume with potentiometer if needed)"));
 
-  // Pitidos intermitentes durante 3 segundos
+  // Intermittent beeps for 3 seconds
   for (int i = 0; i < 6; i++) {
     digitalWrite(PIN_BUZZER, HIGH);
     delay(250);
@@ -344,39 +344,39 @@ void testZumbador() {
     delay(250);
   }
 
-  Serial.println(F("¿Se escucha el zumbador?"));
-  bool resultado = preguntarSiNo();
+  Serial.println(F("Can you hear the buzzer?"));
+  bool resultado = askYesNo();
 
   digitalWrite(PIN_BUZZER, LOW);
 
   if (resultado) {
-    Serial.println(F("✓ Zumbador OK\n"));
-    results.normalActuadores++;
+    Serial.println(F("✓ Buzzer OK\n"));
+    results.normalActuators++;
   } else {
-    Serial.println(F("✗ Zumbador FAIL\n"));
-    results.normalActuadoresFail++;
-    testsFallidosActuadores[numTestsFallidosActuadores++] = "Zumbador";
+    Serial.println(F("✗ Buzzer FAIL\n"));
+    results.normalActuatorsFail++;
+    failedActuatorTests[numFailedActuatorTests++] = "Buzzer";
   }
 }
 
 // ============================================
-// TEST DE SENSORES
+// SENSORS TEST
 // ============================================
 void testJoystick() {
   Serial.println(F("TEST A: Joystick"));
 
-  // Asegurar que los botones estén liberados antes de comenzar
-  esperarBotonesLibres();
+  // Ensure buttons are released before starting
+  waitForButtonsReleased();
 
-  // Debug: mostrar estado de botones
-  Serial.print(F("Estado SR: "));
+  // Debug: show button state
+  Serial.print(F("SR State: "));
   Serial.print(digitalRead(PIN_BUTTON_SR));
   Serial.print(F(" / SL: "));
   Serial.println(digitalRead(PIN_BUTTON_SL));
 
-  // Test Izquierda (JoyX < 5)
-  Serial.println(F("\nMueva el joystick a la IZQUIERDA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Left (JoyX < 5)
+  Serial.println(F("\nMove the joystick to the LEFT"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passIzq = false;
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
@@ -386,19 +386,19 @@ void testJoystick() {
     Serial.println(valorX);
 
     if (valorX < JOY_THRESHOLD_LOW) {
-      Serial.println(F("✓ Izquierda OK"));
+      Serial.println(F("✓ Left OK"));
       passIzq = true;
       delay(1000);
       break;
     }
 
-    // Detectar cambio de estado en SL (presión del botón)
+    // Detect state change in SL (button press)
     int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
     if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
-      delay(50); // Anti-rebote
+      delay(50); // Anti-bounce
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Izquierda FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Left FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -408,12 +408,12 @@ void testJoystick() {
     delay(SENSOR_READ_DELAY);
   }
   if (!passIzq && millis() - startTime >= 30000) {
-    Serial.println(F("✗ Izquierda TIMEOUT"));
+    Serial.println(F("✗ Left TIMEOUT"));
   }
 
-  // Test Derecha (JoyX > 1018)
-  Serial.println(F("\nMueva el joystick a la DERECHA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Right (JoyX > 1018)
+  Serial.println(F("\nMove the joystick to the RIGHT"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passDer = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -423,7 +423,7 @@ void testJoystick() {
     Serial.println(valorX);
 
     if (valorX > JOY_THRESHOLD_HIGH) {
-      Serial.println(F("✓ Derecha OK"));
+      Serial.println(F("✓ Right OK"));
       passDer = true;
       delay(1000);
       break;
@@ -434,7 +434,7 @@ void testJoystick() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Derecha FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Right FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -444,12 +444,12 @@ void testJoystick() {
     delay(SENSOR_READ_DELAY);
   }
   if (!passDer && millis() - startTime >= 30000) {
-    Serial.println(F("✗ Derecha TIMEOUT"));
+    Serial.println(F("✗ Right TIMEOUT"));
   }
 
-  // Test Arriba (JoyY > 1018)
-  Serial.println(F("\nMueva el joystick ARRIBA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Up (JoyY > 1018)
+  Serial.println(F("\nMove the joystick UP"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passArr = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -459,7 +459,7 @@ void testJoystick() {
     Serial.println(valorY);
 
     if (valorY > JOY_THRESHOLD_HIGH) {
-      Serial.println(F("✓ Arriba OK"));
+      Serial.println(F("✓ Up OK"));
       passArr = true;
       delay(1000);
       break;
@@ -470,7 +470,7 @@ void testJoystick() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Arriba FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Up FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -480,12 +480,12 @@ void testJoystick() {
     delay(SENSOR_READ_DELAY);
   }
   if (!passArr && millis() - startTime >= 30000) {
-    Serial.println(F("✗ Arriba TIMEOUT"));
+    Serial.println(F("✗ Up TIMEOUT"));
   }
 
-  // Test Abajo (JoyY < 5)
-  Serial.println(F("\nMueva el joystick ABAJO"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Down (JoyY < 5)
+  Serial.println(F("\nMove the joystick DOWN"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passAba = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -495,7 +495,7 @@ void testJoystick() {
     Serial.println(valorY);
 
     if (valorY < JOY_THRESHOLD_LOW) {
-      Serial.println(F("✓ Abajo OK"));
+      Serial.println(F("✓ Down OK"));
       passAba = true;
       delay(1000);
       break;
@@ -506,7 +506,7 @@ void testJoystick() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Abajo FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Down FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -516,29 +516,29 @@ void testJoystick() {
     delay(SENSOR_READ_DELAY);
   }
   if (!passAba && millis() - startTime >= 30000) {
-    Serial.println(F("✗ Abajo TIMEOUT"));
+    Serial.println(F("✗ Down TIMEOUT"));
   }
 
   bool joystickOK = passIzq && passDer && passArr && passAba;
   if (joystickOK) {
-    Serial.println(F("\n✓ Joystick completo OK\n"));
-    results.normalSensores++;
+    Serial.println(F("\n✓ Joystick complete OK\n"));
+    results.normalSensors++;
   } else {
     Serial.println(F("\n✗ Joystick FAIL\n"));
-    results.normalSensoresFail++;
-    testsFallidosSensores[numTestsFallidosSensores++] = "Joystick";
+    results.normalSensorsFail++;
+    failedSensorTests[numFailedSensorTests++] = "Joystick";
   }
 }
 
-void testAcelerometro() {
-  Serial.println(F("TEST B: Acelerometro"));
+void testAccelerometer() {
+  Serial.println(F("TEST B: Accelerometer"));
 
-  // Asegurar que los botones estén liberados antes de comenzar
-  esperarBotonesLibres();
+  // Ensure buttons are released before starting
+  waitForButtonsReleased();
 
-  // Test Izquierda (X < -7.8)
-  Serial.println(F("\nIncline la placa hacia la IZQUIERDA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Left (X < -7.8)
+  Serial.println(F("\nTilt the board to the LEFT"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passIzq = false;
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
@@ -551,7 +551,7 @@ void testAcelerometro() {
     Serial.println(x, 2);
 
     if (x < ACCEL_THRESHOLD_LOW) {
-      Serial.println(F("✓ Izquierda OK"));
+      Serial.println(F("✓ Left OK"));
       passIzq = true;
       delay(1000);
       break;
@@ -562,7 +562,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Izquierda FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Left FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -572,9 +572,9 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  // Test Derecha (X > 7.8)
-  Serial.println(F("\nIncline la placa hacia la DERECHA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Right (X > 7.8)
+  Serial.println(F("\nTilt the board to the RIGHT"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passDer = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -587,7 +587,7 @@ void testAcelerometro() {
     Serial.println(x, 2);
 
     if (x > ACCEL_THRESHOLD_HIGH) {
-      Serial.println(F("✓ Derecha OK"));
+      Serial.println(F("✓ Right OK"));
       passDer = true;
       delay(1000);
       break;
@@ -598,7 +598,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Derecha FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Right FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -608,9 +608,9 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  // Test Arriba (Y > 7.8)
-  Serial.println(F("\nIncline la placa ARRIBA"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Up (Y > 7.8)
+  Serial.println(F("\nTilt the board UP"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passArr = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -623,7 +623,7 @@ void testAcelerometro() {
     Serial.println(y, 2);
 
     if (y > ACCEL_THRESHOLD_HIGH) {
-      Serial.println(F("✓ Arriba OK"));
+      Serial.println(F("✓ Up OK"));
       passArr = true;
       delay(1000);
       break;
@@ -634,7 +634,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Arriba FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Up FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -644,9 +644,9 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  // Test Abajo (Y < -7.8)
-  Serial.println(F("\nIncline la placa ABAJO"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Down (Y < -7.8)
+  Serial.println(F("\nTilt the board DOWN"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passAba = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -659,7 +659,7 @@ void testAcelerometro() {
     Serial.println(y, 2);
 
     if (y < ACCEL_THRESHOLD_LOW) {
-      Serial.println(F("✓ Abajo OK"));
+      Serial.println(F("✓ Down OK"));
       passAba = true;
       delay(1000);
       break;
@@ -670,7 +670,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Abajo FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Down FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -680,9 +680,9 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  // Test Boca Arriba (Z > 7.8)
-  Serial.println(F("\nColoque la placa BOCA ARRIBA (componentes hacia arriba)"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Face Up (Z > 7.8)
+  Serial.println(F("\nPlace the board FACE UP (components facing up)"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passBocaArriba = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -695,7 +695,7 @@ void testAcelerometro() {
     Serial.println(z, 2);
 
     if (z > ACCEL_THRESHOLD_HIGH) {
-      Serial.println(F("✓ Boca Arriba OK"));
+      Serial.println(F("✓ Face Up OK"));
       passBocaArriba = true;
       delay(1000);
       break;
@@ -706,7 +706,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Boca Arriba FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Face Up FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -716,9 +716,9 @@ void testAcelerometro() {
     delay(SENSOR_READ_DELAY);
   }
 
-  // Test Boca Abajo (Z < -7.8)
-  Serial.println(F("\nColoque la placa BOCA ABAJO (componentes hacia abajo)"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  // Test Face Down (Z < -7.8)
+  Serial.println(F("\nPlace the board FACE DOWN (components facing down)"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
   bool passBocaAbajo = false;
   estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   startTime = millis();
@@ -731,7 +731,7 @@ void testAcelerometro() {
     Serial.println(z, 2);
 
     if (z < ACCEL_THRESHOLD_LOW) {
-      Serial.println(F("✓ Boca Abajo OK"));
+      Serial.println(F("✓ Face Down OK"));
       passBocaAbajo = true;
       delay(1000);
       break;
@@ -742,7 +742,7 @@ void testAcelerometro() {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Boca Abajo FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Face Down FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -754,22 +754,22 @@ void testAcelerometro() {
 
   bool accelOK = passIzq && passDer && passArr && passAba && passBocaArriba && passBocaAbajo;
   if (accelOK) {
-    Serial.println(F("\n✓ Acelerometro completo OK\n"));
-    results.normalSensores++;
+    Serial.println(F("\n✓ Accelerometer complete OK\n"));
+    results.normalSensors++;
   } else {
-    Serial.println(F("\n✗ Acelerometro FAIL\n"));
-    results.normalSensoresFail++;
-    testsFallidosSensores[numTestsFallidosSensores++] = "Acelerometro";
+    Serial.println(F("\n✗ Accelerometer FAIL\n"));
+    results.normalSensorsFail++;
+    failedSensorTests[numFailedSensorTests++] = "Accelerometer";
   }
 }
 
 void testLDR() {
-  Serial.println(F("TEST C: LDR (Sensor de luz)"));
+  Serial.println(F("TEST C: LDR (Light sensor)"));
 
-  // Asegurar que los botones estén liberados antes de comenzar
-  esperarBotonesLibres();
+  // Ensure buttons are released before starting
+  waitForButtonsReleased();
 
-  Serial.println(F("\nCubra completamente el LDR"));
+  Serial.println(F("\nCover the LDR completely"));
   Serial.println(F("SR = Test OK / SL = Test FAIL"));
 
   bool passLDR = false;
@@ -782,19 +782,19 @@ void testLDR() {
     Serial.println(valor);
 
     if (valor < LDR_THRESHOLD_DARK) {
-      Serial.println(F("✓ LDR OK (detectado automaticamente)"));
+      Serial.println(F("✓ LDR OK (detected automatically)"));
       passLDR = true;
       delay(1000);
       break;
     }
 
-    // Detectar cambio de estado en SR (test OK)
+    // Detect state change in SR (test OK)
     int estadoSR_actual = digitalRead(PIN_BUTTON_SR);
     if (millis() - startTime > 1000 && estadoSR_actual != estadoSR_anterior) {
       delay(50);
       estadoSR_actual = digitalRead(PIN_BUTTON_SR);
       if (estadoSR_actual != estadoSR_anterior) {
-        Serial.println(F("✓ LDR OK (confirmado por usuario)"));
+        Serial.println(F("✓ LDR OK (confirmed by user)"));
         passLDR = true;
         delay(300);
         break;
@@ -802,13 +802,13 @@ void testLDR() {
     }
     estadoSR_anterior = estadoSR_actual;
 
-    // Detectar cambio de estado en SL (test FAIL)
+    // Detect state change in SL (test FAIL)
     int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
     if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
       delay(50);
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ LDR FAIL (indicado por usuario)"));
+        Serial.println(F("✗ LDR FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -819,20 +819,20 @@ void testLDR() {
   }
 
   if (passLDR) {
-    Serial.println(F("\n✓ LDR completo OK\n"));
-    results.normalSensores++;
+    Serial.println(F("\n✓ LDR complete OK\n"));
+    results.normalSensors++;
   } else {
     Serial.println(F("\n✗ LDR FAIL\n"));
-    results.normalSensoresFail++;
-    testsFallidosSensores[numTestsFallidosSensores++] = "LDR (Sensor de luz)";
+    results.normalSensorsFail++;
+    failedSensorTests[numFailedSensorTests++] = "LDR (Light sensor)";
   }
 }
 
-void testTemperatura() {
-  Serial.println(F("TEST D: Sensor de Temperatura"));
-  Serial.println(F("\nLeyendo temperatura..."));
+void testTemperature() {
+  Serial.println(F("TEST D: Temperature Sensor"));
+  Serial.println(F("\nReading temperature..."));
 
-  // Hacer varias lecturas y promediar
+  // Take multiple readings and average
   long suma = 0;
   for (int i = 0; i < 10; i++) {
     suma += analogRead(PIN_TEMP);
@@ -840,37 +840,37 @@ void testTemperatura() {
   }
   int valorPromedio = suma / 10;
 
-  // Convertir a grados usando la fórmula del sensor
-  // Fórmula: (valorADC * 0.4658) - 50.0
+  // Convert to degrees using sensor formula
+  // Formula: (valorADC * 0.4658) - 50.0
   float temperatura = (valorPromedio * 0.4658) - 50.0;
 
-  Serial.print(F("Lectura ADC: "));
+  Serial.print(F("ADC Reading: "));
   Serial.println(valorPromedio);
-  Serial.print(F("Temperatura: "));
+  Serial.print(F("Temperature: "));
   Serial.print(temperatura, 2);
   Serial.println(F(" C"));
 
-  Serial.println(F("\n¿Es la lectura correcta?"));
-  bool resultado = preguntarSiNo();
+  Serial.println(F("\nIs the reading correct?"));
+  bool resultado = askYesNo();
 
   if (resultado) {
-    Serial.println(F("✓ Temperatura OK\n"));
-    results.normalSensores++;
+    Serial.println(F("✓ Temperature OK\n"));
+    results.normalSensors++;
   } else {
-    Serial.println(F("✗ Temperatura FAIL\n"));
-    results.normalSensoresFail++;
-    testsFallidosSensores[numTestsFallidosSensores++] = "Sensor de Temperatura";
+    Serial.println(F("✗ Temperature FAIL\n"));
+    results.normalSensorsFail++;
+    failedSensorTests[numFailedSensorTests++] = "Temperature Sensor";
   }
 }
 
-void testMicrofono() {
-  Serial.println(F("TEST E: Microfono"));
+void testMicrophone() {
+  Serial.println(F("TEST E: Microphone"));
 
-  // Asegurar que los botones estén liberados antes de comenzar
-  esperarBotonesLibres();
+  // Ensure buttons are released before starting
+  waitForButtonsReleased();
 
-  Serial.println(F("\nHaga ruido cerca del microfono"));
-  Serial.println(F("(Presione SL si el test no pasa)"));
+  Serial.println(F("\nMake noise near the microphone"));
+  Serial.println(F("(Press SL if the test doesn't pass)"));
 
   bool passMic = false;
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
@@ -878,23 +878,23 @@ void testMicrofono() {
   while (millis() - startTime < 30000) {
     int valor = analogRead(PIN_MIC);
 
-    Serial.print(F("Microfono: "));
+    Serial.print(F("Microphone: "));
     Serial.println(valor);
 
     if (valor > MIC_THRESHOLD_NOISE) {
-      Serial.println(F("✓ Microfono OK"));
+      Serial.println(F("✓ Microphone OK"));
       passMic = true;
       delay(1000);
       break;
     }
 
-    // Detectar cambio de estado en SL (presión del botón)
+    // Detect state change in SL (button press)
     int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
     if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
-      delay(50); // Anti-rebote
+      delay(50); // Anti-bounce
       estadoSL_actual = digitalRead(PIN_BUTTON_SL);
       if (estadoSL_actual != estadoSL_anterior) {
-        Serial.println(F("✗ Microfono FAIL (indicado por usuario)"));
+        Serial.println(F("✗ Microphone FAIL (indicated by user)"));
         delay(300);
         break;
       }
@@ -905,36 +905,36 @@ void testMicrofono() {
   }
 
   if (passMic) {
-    Serial.println(F("\n✓ Microfono completo OK\n"));
-    results.normalSensores++;
+    Serial.println(F("\n✓ Microphone complete OK\n"));
+    results.normalSensors++;
   } else {
-    Serial.println(F("\n✗ Microfono FAIL\n"));
-    results.normalSensoresFail++;
-    testsFallidosSensores[numTestsFallidosSensores++] = "Microfono";
+    Serial.println(F("\n✗ Microphone FAIL\n"));
+    results.normalSensorsFail++;
+    failedSensorTests[numFailedSensorTests++] = "Microphone";
   }
 }
 
 // ============================================
-// TEST MODO MKMK
+// TEST MKMK MODE
 // ============================================
-void testModoMkMk() {
+void testMkMkMode() {
   Serial.println(F("\n****************************************"));
-  Serial.println(F("INICIO TEST MODO MKMK"));
+  Serial.println(F("START MKMK MODE TEST"));
   Serial.println(F("****************************************\n"));
 
-  Serial.println(F("CAMBIE EL INTERRUPTOR A MODO MKMK"));
-  Serial.println(F("Presione SR cuando este listo..."));
-  Serial.print(F("Si en "));
-  Serial.print(MKMK_MAX_INTENTOS);
-  Serial.println(F(" lecturas no se detecta el nivel alto, se considera test erroneo"));
-  esperarBotonSR();
+  Serial.println(F("SWITCH TO MKMK MODE"));
+  Serial.println(F("Press SR when ready..."));
+  Serial.print(F("If after "));
+  Serial.print(MKMK_MAX_ATTEMPTS);
+  Serial.println(F(" readings high level is not detected, test is considered failed"));
+  waitForButtonSR();
 
-  // Reinicializar pines D2 y D3 antes del test
+  // Reinitialize pins D2 and D3 before test
   pinMode(PIN_BUTTON_SR, INPUT_PULLUP);
   pinMode(PIN_BUTTON_SL, INPUT_PULLUP);
   delay(100);
 
-  // Pines a probar en modo MkMk
+  // Pins to test in MkMk mode
   int pinesAnalogicos[] = {A0, A1, A2, A3, A6, A7};
   String nombresAnalogicos[] = {"A0", "A1", "A2", "A3", "A6", "A7"};
   int numAnalogicos = 6;
@@ -943,18 +943,18 @@ void testModoMkMk() {
   String nombresDigitales[] = {"D2", "D3"};
   int numDigitales = 2;
 
-  // Test pines analógicos
+  // Test analog pins
   for (int i = 0; i < numAnalogicos; i++) {
     Serial.print(F("\nTest "));
     Serial.println(nombresAnalogicos[i]);
-    Serial.print(F("Toque MkMk "));
+    Serial.print(F("Touch MkMk "));
     Serial.print(nombresAnalogicos[i]);
-    Serial.println(F(" y Hombre MkMk"));
+    Serial.println(F(" and MkMk Man"));
 
     bool pass = false;
     int intentos = 0;
 
-    while (intentos < MKMK_MAX_INTENTOS) {
+    while (intentos < MKMK_MAX_ATTEMPTS) {
       int valor = analogRead(pinesAnalogicos[i]);
       Serial.print(nombresAnalogicos[i]);
       Serial.print(F(": "));
@@ -962,7 +962,7 @@ void testModoMkMk() {
       Serial.print(F(" ("));
       Serial.print(intentos + 1);
       Serial.print(F("/"));
-      Serial.print(MKMK_MAX_INTENTOS);
+      Serial.print(MKMK_MAX_ATTEMPTS);
       Serial.println(F(")"));
 
       if (valor > MKMK_THRESHOLD) {
@@ -976,7 +976,7 @@ void testModoMkMk() {
       }
 
       intentos++;
-      if (intentos < MKMK_MAX_INTENTOS) {
+      if (intentos < MKMK_MAX_ATTEMPTS) {
         delay(SENSOR_READ_DELAY);
       }
     }
@@ -985,33 +985,33 @@ void testModoMkMk() {
       Serial.print(F("✗ "));
       Serial.print(nombresAnalogicos[i]);
       Serial.print(F(" FAIL ("));
-      Serial.print(MKMK_MAX_INTENTOS);
-      Serial.println(F(" intentos sin exito)"));
+      Serial.print(MKMK_MAX_ATTEMPTS);
+      Serial.println(F(" attempts unsuccessful)"));
       results.mkMkFail++;
-      testsFallidosMkMk[numTestsFallidosMkMk++] = "Pin " + nombresAnalogicos[i];
+      failedMkMkTests[numFailedMkMkTests++] = "Pin " + nombresAnalogicos[i];
     }
   }
 
-  // Test pines digitales
+  // Test digital pins
   for (int i = 0; i < numDigitales; i++) {
     Serial.print(F("\nTest "));
     Serial.println(nombresDigitales[i]);
 
-    // Debug: mostrar estado antes de cambiar pinMode
-    Serial.print(F("Estado antes (con PULLUP): "));
+    // Debug: show state before changing pinMode
+    Serial.print(F("State before (with PULLUP): "));
     Serial.println(digitalRead(pinesDigitales[i]));
 
-    Serial.print(F("Toque MkMk "));
+    Serial.print(F("Touch MkMk "));
     Serial.print(nombresDigitales[i]);
-    Serial.println(F(" y Hombre MkMk"));
+    Serial.println(F(" and MkMk Man"));
 
     pinMode(pinesDigitales[i], INPUT);
-    delay(10); // Pequeño delay para estabilizar
+    delay(10); // Small delay to stabilize
 
     bool pass = false;
     int intentos = 0;
 
-    while (intentos < MKMK_MAX_INTENTOS) {
+    while (intentos < MKMK_MAX_ATTEMPTS) {
       int valor = digitalRead(pinesDigitales[i]);
       Serial.print(nombresDigitales[i]);
       Serial.print(F(": "));
@@ -1019,7 +1019,7 @@ void testModoMkMk() {
       Serial.print(F(" ("));
       Serial.print(intentos + 1);
       Serial.print(F("/"));
-      Serial.print(MKMK_MAX_INTENTOS);
+      Serial.print(MKMK_MAX_ATTEMPTS);
       Serial.println(F(")"));
 
       if (valor == HIGH) {
@@ -1033,7 +1033,7 @@ void testModoMkMk() {
       }
 
       intentos++;
-      if (intentos < MKMK_MAX_INTENTOS) {
+      if (intentos < MKMK_MAX_ATTEMPTS) {
         delay(SENSOR_READ_DELAY);
       }
     }
@@ -1042,89 +1042,89 @@ void testModoMkMk() {
       Serial.print(F("✗ "));
       Serial.print(nombresDigitales[i]);
       Serial.print(F(" FAIL ("));
-      Serial.print(MKMK_MAX_INTENTOS);
-      Serial.println(F(" intentos sin exito)"));
+      Serial.print(MKMK_MAX_ATTEMPTS);
+      Serial.println(F(" attempts unsuccessful)"));
       results.mkMkFail++;
-      testsFallidosMkMk[numTestsFallidosMkMk++] = "Pin " + nombresDigitales[i];
+      failedMkMkTests[numFailedMkMkTests++] = "Pin " + nombresDigitales[i];
     }
 
-    // Restaurar configuración de pines
+    // Restore pin configuration
     pinMode(pinesDigitales[i], INPUT_PULLUP);
   }
 
   Serial.println(F("\n****************************************"));
-  Serial.println(F("FIN TEST MODO MKMK"));
+  Serial.println(F("END MKMK MODE TEST"));
   Serial.println(F("****************************************\n"));
 }
 
 // ============================================
-// REPORTE FINAL
+// FINAL REPORT
 // ============================================
-void reporteFinal() {
+void finalReport() {
   Serial.println(F("\n\n"));
   Serial.println(F("========================================"));
-  Serial.println(F("       REPORTE FINAL DE RESULTADOS"));
+  Serial.println(F("       FINAL RESULTS REPORT"));
   Serial.println(F("========================================\n"));
 
-  Serial.println(F("--- MODO NORMAL ---"));
-  Serial.print(F("Actuadores OK: "));
-  Serial.println(results.normalActuadores);
-  Serial.print(F("Actuadores FAIL: "));
-  Serial.println(results.normalActuadoresFail);
+  Serial.println(F("--- NORMAL MODE ---"));
+  Serial.print(F("Actuators OK: "));
+  Serial.println(results.normalActuators);
+  Serial.print(F("Actuators FAIL: "));
+  Serial.println(results.normalActuatorsFail);
 
-  if (numTestsFallidosActuadores > 0) {
-    Serial.println(F("  Tests fallidos:"));
-    for (int i = 0; i < numTestsFallidosActuadores; i++) {
+  if (numFailedActuatorTests > 0) {
+    Serial.println(F("  Failed tests:"));
+    for (int i = 0; i < numFailedActuatorTests; i++) {
       Serial.print(F("    - "));
-      Serial.println(testsFallidosActuadores[i]);
+      Serial.println(failedActuatorTests[i]);
     }
   }
 
-  Serial.print(F("Sensores OK: "));
-  Serial.println(results.normalSensores);
-  Serial.print(F("Sensores FAIL: "));
-  Serial.println(results.normalSensoresFail);
+  Serial.print(F("Sensors OK: "));
+  Serial.println(results.normalSensors);
+  Serial.print(F("Sensors FAIL: "));
+  Serial.println(results.normalSensorsFail);
 
-  if (numTestsFallidosSensores > 0) {
-    Serial.println(F("  Tests fallidos:"));
-    for (int i = 0; i < numTestsFallidosSensores; i++) {
+  if (numFailedSensorTests > 0) {
+    Serial.println(F("  Failed tests:"));
+    for (int i = 0; i < numFailedSensorTests; i++) {
       Serial.print(F("    - "));
-      Serial.println(testsFallidosSensores[i]);
+      Serial.println(failedSensorTests[i]);
     }
   }
 
-  int totalNormal = results.normalActuadores + results.normalSensores;
-  int totalNormalFail = results.normalActuadoresFail + results.normalSensoresFail;
-  Serial.print(F("\nTotal Modo Normal OK: "));
+  int totalNormal = results.normalActuators + results.normalSensors;
+  int totalNormalFail = results.normalActuatorsFail + results.normalSensorsFail;
+  Serial.print(F("\nTotal Normal Mode OK: "));
   Serial.print(totalNormal);
   Serial.print(F(" / "));
   Serial.println(totalNormal + totalNormalFail);
 
-  Serial.println(F("\n--- MODO MKMK ---"));
-  Serial.print(F("Pines OK: "));
+  Serial.println(F("\n--- MKMK MODE ---"));
+  Serial.print(F("Pins OK: "));
   Serial.println(results.mkMk);
-  Serial.print(F("Pines FAIL: "));
+  Serial.print(F("Pins FAIL: "));
   Serial.println(results.mkMkFail);
 
-  if (numTestsFallidosMkMk > 0) {
-    Serial.println(F("  Pines fallidos:"));
-    for (int i = 0; i < numTestsFallidosMkMk; i++) {
+  if (numFailedMkMkTests > 0) {
+    Serial.println(F("  Failed pins:"));
+    for (int i = 0; i < numFailedMkMkTests; i++) {
       Serial.print(F("    - "));
-      Serial.println(testsFallidosMkMk[i]);
+      Serial.println(failedMkMkTests[i]);
     }
   }
 
-  Serial.print(F("\nTotal Modo MkMk OK: "));
+  Serial.print(F("\nTotal MkMk Mode OK: "));
   Serial.print(results.mkMk);
   Serial.print(F(" / "));
   Serial.println(results.mkMk + results.mkMkFail);
 
-  Serial.println(F("\n--- RESUMEN GENERAL ---"));
+  Serial.println(F("\n--- GENERAL SUMMARY ---"));
   int totalTests = totalNormal + totalNormalFail + results.mkMk + results.mkMkFail;
   int totalOK = totalNormal + results.mkMk;
   float porcentaje = (totalOK * 100.0) / totalTests;
 
-  Serial.print(F("Tests exitosos: "));
+  Serial.print(F("Successful tests: "));
   Serial.print(totalOK);
   Serial.print(F(" / "));
   Serial.print(totalTests);
@@ -1135,11 +1135,11 @@ void reporteFinal() {
   Serial.println(F("\n========================================"));
 
   if (totalOK == totalTests) {
-    Serial.println(F("     ✓✓✓ TODOS LOS TESTS PASARON ✓✓✓"));
+    Serial.println(F("     ✓✓✓ ALL TESTS PASSED ✓✓✓"));
   } else if (porcentaje >= 80) {
-    Serial.println(F("     ⚠ ALGUNOS TESTS FALLARON ⚠"));
+    Serial.println(F("     ⚠ SOME TESTS FAILED ⚠"));
   } else {
-    Serial.println(F("     ✗✗✗ MULTIPLES FALLOS ✗✗✗"));
+    Serial.println(F("     ✗✗✗ MULTIPLE FAILURES ✗✗✗"));
   }
 
   Serial.println(F("========================================"));

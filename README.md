@@ -1,280 +1,280 @@
 # Test FAB Echidna
 
-Programa de test automatizado para placas de robótica educativa FAB Echidna basadas en Arduino Nano. Permite verificar el funcionamiento de todos los actuadores y sensores de la placa en dos modos: Normal y MkMk.
+Automated test program for FAB Echidna educational robotics boards based on Arduino Nano. It allows verification of all board actuators and sensors in two modes: Normal and MkMk.
 
-## Descripción
+## Description
 
-Este programa realiza pruebas secuenciales de todos los componentes de la placa FAB Echidna:
-- Actuadores: LEDs (Verde, Naranja, Rojo), LED RGB, Zumbador
-- Sensores: Joystick, Acelerómetro, LDR, Temperatura, Micrófono
-- Modo MkMk: Verificación de conectividad de pines para conexiones externas
+This program performs sequential tests of all FAB Echidna board components:
+- Actuators: LEDs (Green, Orange, Red), RGB LED, Buzzer
+- Sensors: Joystick, Accelerometer, LDR, Temperature, Microphone
+- MkMk Mode: Pin connectivity verification for external connections
 
-El programa guía al usuario a través de cada test mostrando instrucciones por el Monitor Serial y proporciona un reporte final con estadísticas de éxitos y fallos.
+The program guides the user through each test by displaying instructions via the Serial Monitor and provides a final report with success and failure statistics.
 
-## Requisitos
+## Requirements
 
 ### Hardware
-- Placa FAB Echidna con Arduino Nano
-- Cable USB para programación y monitor serial
-- Computadora con Arduino IDE
+- FAB Echidna board with Arduino Nano
+- USB cable for programming and serial monitor
+- Computer with Arduino IDE
 
 ### Software
-- Arduino IDE 1.8.x o superior (o Arduino IDE 2.x)
-- Librería **Adafruit LIS3DH** para el acelerómetro
-- Librería **Adafruit Unified Sensor** (dependencia automática)
+- Arduino IDE 1.8.x or higher (or Arduino IDE 2.x)
+- **Adafruit LIS3DH** library for the accelerometer
+- **Adafruit Unified Sensor** library (automatic dependency)
 
-## Instalación
+## Installation
 
-### 1. Instalar Arduino IDE
-Si no lo tienes instalado, descarga Arduino IDE desde [arduino.cc](https://www.arduino.cc/en/software)
+### 1. Install Arduino IDE
+If you don't have it installed, download Arduino IDE from [arduino.cc](https://www.arduino.cc/en/software)
 
-### 2. Instalar las librerías necesarias
+### 2. Install the required libraries
 
-**Opción A: Desde el Gestor de Librerías (recomendado)**
-1. Abre Arduino IDE
-2. Ve a `Herramientas > Administrar Bibliotecas...` (o `Tools > Manage Libraries...`)
-3. Busca "Adafruit LIS3DH" en el buscador
-4. Instala la librería **Adafruit LIS3DH** de Adafruit
-5. Cuando te pregunte si deseas instalar las dependencias, haz clic en "Instalar todas"
-   - Esto instalará automáticamente **Adafruit Unified Sensor** y otras dependencias necesarias
+**Option A: From the Library Manager (recommended)**
+1. Open Arduino IDE
+2. Go to `Tools > Manage Libraries...`
+3. Search for "Adafruit LIS3DH" in the search box
+4. Install the **Adafruit LIS3DH** library from Adafruit
+5. When prompted to install dependencies, click "Install all"
+   - This will automatically install **Adafruit Unified Sensor** and other necessary dependencies
 
-**Opción B: Manual**
-1. Descarga las librerías desde GitHub:
+**Option B: Manual**
+1. Download the libraries from GitHub:
    - [Adafruit LIS3DH](https://github.com/adafruit/Adafruit_LIS3DH)
    - [Adafruit Unified Sensor](https://github.com/adafruit/Adafruit_Sensor)
-2. En Arduino IDE ve a `Programa > Incluir Librería > Añadir biblioteca .ZIP`
-3. Instala primero Adafruit Unified Sensor, luego Adafruit LIS3DH
+2. In Arduino IDE go to `Sketch > Include Library > Add .ZIP Library`
+3. Install Adafruit Unified Sensor first, then Adafruit LIS3DH
 
-### 3. Cargar el programa
+### 3. Upload the program
 
-1. Abre el archivo `test-fab-echidna.ino` en Arduino IDE
-2. Conecta la placa FAB Echidna al computador vía USB
-3. Selecciona la placa: `Herramientas > Placa > Arduino Nano`
-4. Selecciona el procesador: `Herramientas > Procesador > ATmega328P` (o ATmega328P Old Bootloader si falla)
-5. Selecciona el puerto correcto: `Herramientas > Puerto > [Puerto de tu Arduino]`
-6. Haz clic en el botón "Subir" (flecha derecha) o presiona `Ctrl+U`
+1. Open the `test-fab-echidna.ino` file in Arduino IDE
+2. Connect the FAB Echidna board to the computer via USB
+3. Select the board: `Tools > Board > Arduino Nano`
+4. Select the processor: `Tools > Processor > ATmega328P` (or ATmega328P Old Bootloader if it fails)
+5. Select the correct port: `Tools > Port > [Your Arduino Port]`
+6. Click the "Upload" button (right arrow) or press `Ctrl+U`
 
-## Uso
+## Usage
 
-### Preparación
-1. Una vez cargado el programa, abre el Monitor Serial: `Herramientas > Monitor Serie`
-2. Configura la velocidad a **9600 baudios** en la esquina inferior derecha
-3. Asegúrate de tener la placa en un espacio donde puedas:
-   - Ver los LEDs claramente
-   - Escuchar el zumbador (ajusta el potenciómetro de volumen si es necesario)
-   - Mover el joystick
-   - Inclinar la placa
-   - Cubrir el sensor LDR
-   - Hacer ruido cerca del micrófono
+### Preparation
+1. Once the program is uploaded, open the Serial Monitor: `Tools > Serial Monitor`
+2. Set the speed to **9600 baud** in the lower right corner
+3. Make sure you have the board in a space where you can:
+   - See the LEDs clearly
+   - Hear the buzzer (adjust the volume potentiometer if necessary)
+   - Move the joystick
+   - Tilt the board
+   - Cover the LDR sensor
+   - Make noise near the microphone
 
-### Secuencia de Test
+### Test Sequence
 
-#### 1. Test Modo Normal
+#### 1. Normal Mode Test
 
-El programa comenzará mostrando instrucciones. Deberás:
+The program will start by showing instructions. You must:
 
-**A. Verificación de pulsadores**
-- Presiona el pulsador **SR** (derecho)
-- Presiona el pulsador **SL** (izquierdo)
-- Esto confirma que los pulsadores funcionan
+**A. Button Verification**
+- Press the **SR** button (right)
+- Press the **SL** button (left)
+- This confirms that the buttons work
 
-**B. Test de Actuadores**
+**B. Actuator Tests**
 
-1. **LEDs**: Se encienden los 3 LEDs (Verde, Naranja, Rojo)
-   - Presiona **SR** si los ves encendidos
-   - Presiona **SL** si alguno no funciona
+1. **LEDs**: The 3 LEDs turn on (Green, Orange, Red)
+   - Press **SR** if you see them lit
+   - Press **SL** if any don't work
 
-2. **LED RGB**: Muestra 3 colores secuencialmente (Rojo, Verde, Azul)
-   - Presiona **SR** si viste los 3 colores
-   - Presiona **SL** si alguno faltó
+2. **RGB LED**: Shows 3 colors sequentially (Red, Green, Blue)
+   - Press **SR** if you saw all 3 colors
+   - Press **SL** if any were missing
 
-3. **Zumbador**: Emite pitidos intermitentes
-   - Ajusta el volumen con el potenciómetro si es necesario
-   - Presiona **SR** si lo escuchas
-   - Presiona **SL** si no funciona
+3. **Buzzer**: Emits intermittent beeps
+   - Adjust the volume with the potentiometer if necessary
+   - Press **SR** if you hear it
+   - Press **SL** if it doesn't work
 
-**C. Test de Sensores**
+**C. Sensor Tests**
 
-Los sensores se prueban automáticamente. El programa mostrará el valor leído en tiempo real:
+Sensors are tested automatically. The program will show the value read in real time:
 
 1. **Joystick**
-   - Mueve a la izquierda (hasta que pase automáticamente)
-   - Mueve a la derecha (hasta que pase automáticamente)
-   - Mueve arriba (hasta que pase automáticamente)
-   - Mueve abajo (hasta que pase automáticamente)
-   - Si un movimiento no funciona, presiona **SL** para saltar
+   - Move left (until it passes automatically)
+   - Move right (until it passes automatically)
+   - Move up (until it passes automatically)
+   - Move down (until it passes automatically)
+   - If a movement doesn't work, press **SL** to skip
 
-2. **Acelerómetro**
-   - Inclina la placa a la izquierda
-   - Inclina la placa a la derecha
-   - Inclina la placa arriba
-   - Inclina la placa abajo
-   - Coloca la placa boca arriba (componentes hacia arriba)
-   - Coloca la placa boca abajo (componentes hacia abajo)
-   - El test pasa automáticamente cuando detecta la inclinación correcta
-   - Presiona **SL** para saltar si no funciona
+2. **Accelerometer**
+   - Tilt the board to the left
+   - Tilt the board to the right
+   - Tilt the board up
+   - Tilt the board down
+   - Place the board face up (components facing up)
+   - Place the board face down (components facing down)
+   - The test passes automatically when it detects the correct tilt
+   - Press **SL** to skip if it doesn't work
 
-3. **LDR (Sensor de luz)**
-   - Cubre completamente el sensor LDR con tu mano o un objeto opaco
-   - El test pasa automáticamente cuando detecta oscuridad
-   - Presiona **SL** para saltar si no funciona
+3. **LDR (Light sensor)**
+   - Completely cover the LDR sensor with your hand or an opaque object
+   - The test passes automatically when it detects darkness
+   - Press **SL** to skip if it doesn't work
 
-4. **Temperatura**
-   - El programa muestra la lectura del sensor
-   - Verifica si el valor es razonable (temperatura ambiente ~20-25°C)
-   - Presiona **SR** si es correcto, **SL** si no lo es
+4. **Temperature**
+   - The program displays the sensor reading
+   - Verify if the value is reasonable (room temperature ~20-25°C)
+   - Press **SR** if correct, **SL** if not
 
-5. **Micrófono**
-   - Haz ruido cerca del micrófono (habla, aplaude, silba)
-   - El test pasa automáticamente cuando detecta sonido
-   - Presiona **SL** para saltar si no funciona
+5. **Microphone**
+   - Make noise near the microphone (talk, clap, whistle)
+   - The test passes automatically when it detects sound
+   - Press **SL** to skip if it doesn't work
 
-#### 2. Test Modo MkMk
+#### 2. MkMk Mode Test
 
-1. El programa te pedirá que cambies el **interruptor a Modo MkMk**
-2. Presiona **SR** cuando esté listo
-3. Para cada pin (A0, A1, A2, A3, A6, A7, D2, D3):
-   - Toca simultáneamente el pin MkMk correspondiente y el pin "Hombre MkMk"
-   - El test pasa automáticamente cuando detecta la conexión
-   - Cada pin tiene **10 intentos** (configurable con `MKMK_MAX_INTENTOS`)
-   - Si un pin no pasa después de los intentos, el programa continúa automáticamente
+1. The program will ask you to switch the **switch to MkMk Mode**
+2. Press **SR** when ready
+3. For each pin (A0, A1, A2, A3, A6, A7, D2, D3):
+   - Simultaneously touch the corresponding MkMk pin and the "MkMk Man" pin
+   - The test passes automatically when it detects the connection
+   - Each pin has **10 attempts** (configurable with `MKMK_MAX_INTENTOS`)
+   - If a pin doesn't pass after the attempts, the program continues automatically
 
-#### 3. Reporte Final
+#### 3. Final Report
 
-Al finalizar todos los tests, el programa muestra:
-- Número de actuadores OK/FAIL en Modo Normal
-  - **Lista detallada de actuadores que fallaron** (si hay fallos)
-- Número de sensores OK/FAIL en Modo Normal
-  - **Lista detallada de sensores que fallaron** (si hay fallos)
-- Número de pines OK/FAIL en Modo MkMk
-  - **Lista detallada de pines que fallaron** (si hay fallos)
-- Porcentaje total de éxito
-- Indicador visual del resultado global
+After completing all tests, the program displays:
+- Number of actuators OK/FAIL in Normal Mode
+  - **Detailed list of actuators that failed** (if there are failures)
+- Number of sensors OK/FAIL in Normal Mode
+  - **Detailed list of sensors that failed** (if there are failures)
+- Number of pins OK/FAIL in MkMk Mode
+  - **Detailed list of pins that failed** (if there are failures)
+- Total success percentage
+- Visual indicator of the overall result
 
-Para reiniciar el test, presiona el botón **RESET** en el Arduino.
+To restart the test, press the **RESET** button on the Arduino.
 
-## Mapeo de Pines
+## Pin Mapping
 
-### Modo Normal
+### Normal Mode
 
-| Pin | Componente |
-|-----|------------|
-| D10 | Zumbador |
-| D11 | LED Verde |
-| D12 | LED Naranja |
-| D13 | LED Rojo |
-| D9  | LED RGB - Rojo |
-| D6  | LED RGB - Verde |
-| D5  | LED RGB - Azul |
-| D2  | Pulsador SR (derecho) |
-| D3  | Pulsador SL (izquierdo) |
+| Pin | Component |
+|-----|-----------|
+| D10 | Buzzer |
+| D11 | Green LED |
+| D12 | Orange LED |
+| D13 | Red LED |
+| D9  | RGB LED - Red |
+| D6  | RGB LED - Green |
+| D5  | RGB LED - Blue |
+| D2  | SR Button (right) |
+| D3  | SL Button (left) |
 | A0  | Joystick X |
 | A1  | Joystick Y |
-| A4  | I2C SDA - Acelerómetro |
-| A5  | I2C SCL - Acelerómetro |
-| A3  | LDR (Sensor de luz) |
-| A6  | Sensor de Temperatura |
-| A7  | Micrófono |
+| A4  | I2C SDA - Accelerometer |
+| A5  | I2C SCL - Accelerometer |
+| A3  | LDR (Light sensor) |
+| A6  | Temperature Sensor |
+| A7  | Microphone |
 
-### Modo MkMk
+### MkMk Mode
 
-Pines testeables: A0, A1, A2, A3, A6, A7, D2, D3
+Testable pins: A0, A1, A2, A3, A6, A7, D2, D3
 
-## Configuración y Umbrales
+## Configuration and Thresholds
 
-Los siguientes umbrales y parámetros pueden ajustarse al inicio del archivo `.ino`:
+The following thresholds and parameters can be adjusted at the beginning of the `.ino` file:
 
 ```cpp
 // Joystick
-#define JOY_THRESHOLD_LOW 5        // Umbral para izquierda/abajo
-#define JOY_THRESHOLD_HIGH 1018    // Umbral para derecha/arriba
+#define JOY_THRESHOLD_LOW 5        // Threshold for left/down
+#define JOY_THRESHOLD_HIGH 1018    // Threshold for right/up
 
-// Acelerómetro (valores en m/s²)
-#define ACCEL_THRESHOLD_LOW -7.8   // Umbral negativo (~0.8g)
-#define ACCEL_THRESHOLD_HIGH 7.8   // Umbral positivo (~0.8g)
+// Accelerometer (values in m/s²)
+#define ACCEL_THRESHOLD_LOW -7.8   // Negative threshold (~0.8g)
+#define ACCEL_THRESHOLD_HIGH 7.8   // Positive threshold (~0.8g)
 
 // LDR
-#define LDR_THRESHOLD_DARK 30      // Valor para considerar oscuro
+#define LDR_THRESHOLD_DARK 30      // Value to consider dark
 
-// Micrófono
-#define MIC_THRESHOLD_NOISE 50     // Amplitud mínima para detectar ruido
+// Microphone
+#define MIC_THRESHOLD_NOISE 50     // Minimum amplitude to detect noise
 
 // MkMk
-#define MKMK_THRESHOLD 100         // Valor mínimo analógico para conexión
-#define MKMK_MAX_INTENTOS 10       // Número de intentos por pin en modo MkMk
+#define MKMK_THRESHOLD 100         // Minimum analog value for connection
+#define MKMK_MAX_INTENTOS 10       // Number of attempts per pin in MkMk mode
 
-// Tiempo de actualización (ms)
-#define SENSOR_READ_DELAY 500      // Frecuencia de lectura de sensores
+// Update time (ms)
+#define SENSOR_READ_DELAY 500      // Sensor reading frequency
 ```
 
-### Notas sobre constantes
+### Notes on constants
 
-- **JOY_THRESHOLD_LOW/HIGH**: Valores ADC del joystick (0-1023) para detectar movimientos extremos
-- **ACCEL_THRESHOLD_LOW/HIGH**: Umbrales en m/s² para detectar inclinación. Valores de ±7.8 corresponden a ~0.8g
-- **LDR_THRESHOLD_DARK**: Valor ADC por debajo del cual se considera oscuro
-- **MIC_THRESHOLD_NOISE**: Amplitud mínima (desviación del punto medio 512) para detectar sonido
-- **MKMK_THRESHOLD**: Valor ADC mínimo para considerar que hay conexión en modo MkMk
-- **MKMK_MAX_INTENTOS**: Controla el número de intentos para cada pin en modo MkMk. Centraliza este valor para mantener coherencia en todos los mensajes
-- **SENSOR_READ_DELAY**: Tiempo en ms entre lecturas sucesivas de sensores
+- **JOY_THRESHOLD_LOW/HIGH**: Joystick ADC values (0-1023) to detect extreme movements
+- **ACCEL_THRESHOLD_LOW/HIGH**: Thresholds in m/s² to detect tilt. Values of ±7.8 correspond to ~0.8g
+- **LDR_THRESHOLD_DARK**: ADC value below which it's considered dark
+- **MIC_THRESHOLD_NOISE**: Minimum amplitude (deviation from midpoint 512) to detect sound
+- **MKMK_THRESHOLD**: Minimum ADC value to consider there's a connection in MkMk mode
+- **MKMK_MAX_INTENTOS**: Controls the number of attempts for each pin in MkMk mode. Centralizes this value to maintain consistency in all messages
+- **SENSOR_READ_DELAY**: Time in ms between successive sensor readings
 
-## Solución de Problemas
+## Troubleshooting
 
-### El programa no compila
-- **Error: Adafruit_LIS3DH.h not found** o **Adafruit_Sensor.h not found**
-  - Solución: Instala las librerías Adafruit LIS3DH y Adafruit Unified Sensor desde el gestor de librerías
-  - Asegúrate de instalar las dependencias cuando te lo pregunte Arduino IDE
+### The program doesn't compile
+- **Error: Adafruit_LIS3DH.h not found** or **Adafruit_Sensor.h not found**
+  - Solution: Install the Adafruit LIS3DH and Adafruit Unified Sensor libraries from the library manager
+  - Make sure to install the dependencies when Arduino IDE asks you
 
-- **Error al cargar**
-  - Solución: Prueba con el procesador "ATmega328P (Old Bootloader)" en lugar de "ATmega328P"
+- **Upload error**
+  - Solution: Try the "ATmega328P (Old Bootloader)" processor instead of "ATmega328P"
 
-### El Monitor Serial no muestra nada
-- Verifica que la velocidad esté en **9600 baudios**
-- Presiona el botón RESET en el Arduino
+### The Serial Monitor shows nothing
+- Verify that the speed is set to **9600 baud**
+- Press the RESET button on the Arduino
 
-### El acelerómetro no funciona
-- Mensaje: "ERROR: No se pudo inicializar el acelerometro"
-- Verifica las conexiones I2C (A4/SDA, A5/SCL)
-- Comprueba que la dirección I2C sea 0x18
+### The accelerometer doesn't work
+- Message: "ERROR: Could not initialize accelerometer"
+- Verify the I2C connections (A4/SDA, A5/SCL)
+- Check that the I2C address is 0x18
 
-### Un sensor siempre falla
-- Ajusta los umbrales en el código fuente
-- Verifica las conexiones del sensor
-- Comprueba que el sensor no esté dañado
+### A sensor always fails
+- Adjust the thresholds in the source code
+- Verify the sensor connections
+- Check that the sensor is not damaged
 
-### Los tests se saltan automáticamente
-- Cada test tiene un timeout de 30 segundos
-- Si no se alcanza el umbral, se considera fallo automático
-- Puedes saltar manualmente con el pulsador SL
+### Tests skip automatically
+- Each test has a 30-second timeout
+- If the threshold is not reached, it's considered an automatic failure
+- You can skip manually with the SL button
 
-### El LED RGB no muestra los colores correctos
-- Verifica el mapeo de pines RGB (D9=R, D6=G, D5=B)
-- Si los colores están invertidos, ajusta los pines en el código
+### The RGB LED doesn't show the correct colors
+- Verify the RGB pin mapping (D9=R, D6=G, D5=B)
+- If the colors are inverted, adjust the pins in the code
 
-## Estructura del Código
+## Code Structure
 
 ```
 test-fab-echidna.ino
-├── Definiciones de pines
-├── Umbrales configurables
-├── Variables globales
+├── Pin definitions
+├── Configurable thresholds
+├── Global variables
 ├── setup()
-│   ├── Inicialización serial
-│   ├── Configuración de pines
-│   └── Inicialización acelerómetro
+│   ├── Serial initialization
+│   ├── Pin configuration
+│   └── Accelerometer initialization
 ├── loop()
 │   ├── testModoNormal()
 │   ├── testModoMkMk()
 │   └── reporteFinal()
-├── Funciones de utilidad
+├── Utility functions
 │   ├── apagarActuadores()
 │   ├── esperarBotonSR()
 │   ├── esperarBotonSL()
 │   └── preguntarSiNo()
-├── Tests de actuadores
+├── Actuator tests
 │   ├── testLEDs()
 │   ├── testLEDRGB()
 │   └── testZumbador()
-├── Tests de sensores
+├── Sensor tests
 │   ├── testJoystick()
 │   ├── testAcelerometro()
 │   ├── testLDR()
@@ -283,24 +283,24 @@ test-fab-echidna.ino
 └── testModoMkMk()
 ```
 
-## Notas Técnicas
+## Technical Notes
 
-- **Timeout por test**: 30 segundos para evitar bloqueos
-- **Intentos en modo MkMk**: 10 intentos por pin (configurable con `MKMK_MAX_INTENTOS`)
-- **Debounce de pulsadores**: 200ms
-- **Dirección I2C del acelerómetro**: 0x18
-- **Acelerómetro**: Usa librería Adafruit LIS3DH con valores en m/s² (1g ≈ 9.8 m/s²)
-  - **Tests del acelerómetro**: 6 pruebas (izquierda, derecha, arriba, abajo, boca arriba, boca abajo)
-  - Los tests de boca arriba/abajo verifican el eje Z midiendo la gravedad (±9.8 m/s²)
-- **Frecuencia de actualización**: 500ms (configurable con `SENSOR_READ_DELAY`)
-- **Pull-up en pulsadores**: Activado internamente
-- **Conversión de temperatura**: Fórmula `(valorADC * 0.4658) - 50.0` para obtener grados Celsius
-- **Reporte de fallos**: El reporte final incluye una lista detallada de qué tests específicos fallaron
+- **Timeout per test**: 30 seconds to avoid blocking
+- **Attempts in MkMk mode**: 10 attempts per pin (configurable with `MKMK_MAX_INTENTOS`)
+- **Button debounce**: 200ms
+- **Accelerometer I2C address**: 0x18
+- **Accelerometer**: Uses Adafruit LIS3DH library with values in m/s² (1g ≈ 9.8 m/s²)
+  - **Accelerometer tests**: 6 tests (left, right, up, down, face up, face down)
+  - Face up/down tests verify the Z axis by measuring gravity (±9.8 m/s²)
+- **Update frequency**: 500ms (configurable with `SENSOR_READ_DELAY`)
+- **Pull-up on buttons**: Internally activated
+- **Temperature conversion**: Formula `(ADCvalue * 0.4658) - 50.0` to get degrees Celsius
+- **Failure report**: The final report includes a detailed list of which specific tests failed
 
-## Autor
+## Author
 
-Programa desarrollado para placas educativas FAB Echidna basadas en Arduino Nano.
+Program developed for FAB Echidna educational boards based on Arduino Nano.
 
-## Licencia
+## License
 
-Este código es de uso libre para propósitos educativos.
+This code is free to use for educational purposes.
