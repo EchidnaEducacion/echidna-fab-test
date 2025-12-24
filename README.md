@@ -136,7 +136,7 @@ Sensors are tested automatically. The program will show the value read in real t
 3. For each pin (A0, A1, A2, A3, A6, A7, D2, D3):
    - Simultaneously touch the corresponding MkMk pin and the "MkMk Man" pin
    - The test passes automatically when it detects the connection
-   - Each pin has **10 attempts** (configurable with `MKMK_MAX_INTENTOS`)
+   - Each pin has **10 attempts** (configurable with `MKMK_MAX_ATTEMPTS`)
    - If a pin doesn't pass after the attempts, the program continues automatically
 
 #### 3. Final Report
@@ -201,7 +201,7 @@ The following thresholds and parameters can be adjusted at the beginning of the 
 
 // MkMk
 #define MKMK_THRESHOLD 100         // Minimum analog value for connection
-#define MKMK_MAX_INTENTOS 10       // Number of attempts per pin in MkMk mode
+#define MKMK_MAX_ATTEMPTS 10       // Number of attempts per pin in MkMk mode
 
 // Update time (ms)
 #define SENSOR_READ_DELAY 500      // Sensor reading frequency
@@ -214,7 +214,7 @@ The following thresholds and parameters can be adjusted at the beginning of the 
 - **LDR_THRESHOLD_DARK**: ADC value below which it's considered dark
 - **MIC_THRESHOLD_NOISE**: Minimum amplitude (deviation from midpoint 512) to detect sound
 - **MKMK_THRESHOLD**: Minimum ADC value to consider there's a connection in MkMk mode
-- **MKMK_MAX_INTENTOS**: Controls the number of attempts for each pin in MkMk mode. Centralizes this value to maintain consistency in all messages
+- **MKMK_MAX_ATTEMPTS**: Controls the number of attempts for each pin in MkMk mode. Centralizes this value to maintain consistency in all messages
 - **SENSOR_READ_DELAY**: Time in ms between successive sensor readings
 
 ## Troubleshooting
@@ -286,7 +286,7 @@ test-fab-echidna.ino
 ## Technical Notes
 
 - **Timeout per test**: 30 seconds to avoid blocking
-- **Attempts in MkMk mode**: 10 attempts per pin (configurable with `MKMK_MAX_INTENTOS`)
+- **Attempts in MkMk mode**: 10 attempts per pin (configurable with `MKMK_MAX_ATTEMPTS`)
 - **Button debounce**: 200ms
 - **Accelerometer I2C address**: 0x18
 - **Accelerometer**: Uses Adafruit LIS3DH library with values in m/s² (1g ≈ 9.8 m/s²)
