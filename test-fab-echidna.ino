@@ -30,6 +30,12 @@
 #define PIN_TEMP A6
 #define PIN_MIC A7
 
+// General purpose IO pins (for digital input testing)
+#define PIN_IO_A2 A2
+#define PIN_IO_D4 4
+#define PIN_IO_D7 7
+#define PIN_IO_D8 8
+
 // I2C - Accelerometer
 #define LIS3DHTR_ADDR 0x18
 
@@ -101,6 +107,12 @@ void setup() {
   // Configure input pins
   pinMode(PIN_BUTTON_SR, INPUT_PULLUP);
   pinMode(PIN_BUTTON_SL, INPUT_PULLUP);
+
+  // Configure general purpose IO pins for digital input testing
+  pinMode(PIN_IO_A2, INPUT_PULLUP);
+  pinMode(PIN_IO_D4, INPUT_PULLUP);
+  pinMode(PIN_IO_D7, INPUT_PULLUP);
+  pinMode(PIN_IO_D8, INPUT_PULLUP);
 
   // Turn off all actuators
   turnOffActuators();
@@ -260,6 +272,7 @@ void testNormalMode() {
   testLDR();
   testTemperature();
   testMicrophone();
+  testIOPins();
 
   Serial.println(F("\n****************************************"));
   Serial.println(F("END NORMAL MODE TEST"));
@@ -903,6 +916,100 @@ void testMicrophone() {
     Serial.println(F("\n✗ Microphone FAIL\n"));
     results.normalSensorsFail++;
     failedSensorTests[numFailedSensorTests++] = "Microphone";
+  }
+}
+
+void testIOPins() {
+  Serial.println(F("TEST F: IO pins input test"));
+
+  // Define the pins to test
+  int ioPins[] = {PIN_IO_A2, PIN_IO_D4, PIN_IO_D7, PIN_IO_D8};
+  String ioNames[] = {"A2", "D4", "D7", "D8"};
+  int numPins = 4;
+
+  int pinsPassedCount = 0;
+  String failedPins = "";
+
+  for (int i = 0; i < numPins; i++) {
+    // Ensure buttons are released before starting
+    waitForButtonsReleased();
+
+    Serial.print(F("\n--- Testing pin "));
+    Serial.print(ioNames[i]);
+    Serial.println(F(" ---"));
+    Serial.print(F("Short pin "));
+    Serial.print(ioNames[i]);
+    Serial.println(F(" to GND"));
+    Serial.println(F("(Press SL if the test doesn't pass)"));
+
+    bool passPin = false;
+    int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 30000) {
+      // Read digital pin state
+      int valor = digitalRead(ioPins[i]);
+
+      Serial.print(ioNames[i]);
+      Serial.print(F(": "));
+      Serial.println(valor == HIGH ? "HIGH" : "LOW");
+
+      // Pass if pin reads LOW (shorted to GND)
+      if (valor == LOW) {
+        Serial.print(F("✓ Pin "));
+        Serial.print(ioNames[i]);
+        Serial.println(F(" OK"));
+        passPin = true;
+        delay(1000);
+        break;
+      }
+
+      // Detect state change in SL (button press)
+      int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+        delay(50); // Anti-bounce
+        estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+        if (estadoSL_actual != estadoSL_anterior) {
+          Serial.print(F("✗ Pin "));
+          Serial.print(ioNames[i]);
+          Serial.println(F(" FAIL (indicated by user)"));
+          delay(300);
+          break;
+        }
+      }
+      estadoSL_anterior = estadoSL_actual;
+
+      delay(SENSOR_READ_DELAY);
+    }
+
+    if (passPin) {
+      pinsPassedCount++;
+    } else {
+      if (failedPins.length() > 0) {
+        failedPins += ", ";
+      }
+      failedPins += ioNames[i];
+    }
+  }
+
+  // Register final result
+  if (pinsPassedCount == numPins) {
+    Serial.println(F("\n✓ IO pins input test complete OK\n"));
+    results.normalSensors++;
+  } else {
+    Serial.print(F("\n✗ IO pins input test FAIL ("));
+    Serial.print(pinsPassedCount);
+    Serial.print(F("/"));
+    Serial.print(numPins);
+    Serial.println(F(" pins passed)"));
+    if (failedPins.length() > 0) {
+      Serial.print(F("Failed pins: "));
+      Serial.println(failedPins);
+    }
+    Serial.println();
+    results.normalSensorsFail++;
+    String failMessage = "IO pins (" + failedPins + ")";
+    failedSensorTests[numFailedSensorTests++] = failMessage;
   }
 }
 
