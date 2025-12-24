@@ -770,10 +770,9 @@ void testLDR() {
   waitForButtonsReleased();
 
   Serial.println(F("\nCover the LDR completely"));
-  Serial.println(F("SR = Test OK / SL = Test FAIL"));
+  Serial.println(F("(Press SL if test doesn't pass)"));
 
   bool passLDR = false;
-  int estadoSR_anterior = digitalRead(PIN_BUTTON_SR);
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
@@ -782,25 +781,11 @@ void testLDR() {
     Serial.println(valor);
 
     if (valor < LDR_THRESHOLD_DARK) {
-      Serial.println(F("✓ LDR OK (detected automatically)"));
+      Serial.println(F("✓ LDR OK"));
       passLDR = true;
       delay(1000);
       break;
     }
-
-    // Detect state change in SR (test OK)
-    int estadoSR_actual = digitalRead(PIN_BUTTON_SR);
-    if (millis() - startTime > 1000 && estadoSR_actual != estadoSR_anterior) {
-      delay(50);
-      estadoSR_actual = digitalRead(PIN_BUTTON_SR);
-      if (estadoSR_actual != estadoSR_anterior) {
-        Serial.println(F("✓ LDR OK (confirmed by user)"));
-        passLDR = true;
-        delay(300);
-        break;
-      }
-    }
-    estadoSR_anterior = estadoSR_actual;
 
     // Detect state change in SL (test FAIL)
     int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
