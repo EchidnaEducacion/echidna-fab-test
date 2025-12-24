@@ -48,7 +48,7 @@
 #define LDR_THRESHOLD_DARK 30
 
 // Micrófono
-#define MIC_THRESHOLD_NOISE 1000
+#define MIC_THRESHOLD_NOISE 100
 
 // MkMk
 #define MKMK_THRESHOLD 100
@@ -877,16 +877,11 @@ void testMicrofono() {
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
     int valor = analogRead(PIN_MIC);
-    int baseline = 512; // Valor medio esperado
-    int amplitud = abs(valor - baseline);
 
     Serial.print(F("Microfono: "));
-    Serial.print(valor);
-    Serial.print(F(" (Amplitud: "));
-    Serial.print(amplitud);
-    Serial.println(F(")"));
+    Serial.println(valor);
 
-    if (amplitud > MIC_THRESHOLD_NOISE) {
+    if (valor > MIC_THRESHOLD_NOISE) {
       Serial.println(F("✓ Microfono OK"));
       passMic = true;
       delay(1000);
