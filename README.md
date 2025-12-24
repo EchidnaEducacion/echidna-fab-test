@@ -6,7 +6,7 @@ Automated test program for FAB Echidna educational robotics boards based on Ardu
 
 This program performs sequential tests of all FAB Echidna board components:
 - Actuators: LEDs (Green, Orange, Red), RGB LED, Buzzer
-- Sensors: Joystick, Accelerometer, LDR, Temperature, Microphone
+- Sensors: Joystick, Accelerometer, LDR, Temperature, Microphone, IO Pins
 - MkMk Mode: Pin connectivity verification for external connections
 
 The program guides the user through each test by displaying instructions via the Serial Monitor and provides a final report with success and failure statistics.
@@ -59,13 +59,15 @@ If you don't have it installed, download Arduino IDE from [arduino.cc](https://w
 ### Preparation
 1. Once the program is uploaded, open the Serial Monitor: `Tools > Serial Monitor`
 2. Set the speed to **9600 baud** in the lower right corner
-3. Make sure you have the board in a space where you can:
+3. Have jumper wires or a wire ready for testing the IO pins
+4. Make sure you have the board in a space where you can:
    - See the LEDs clearly
    - Hear the buzzer (adjust the volume potentiometer if necessary)
    - Move the joystick
    - Tilt the board
    - Cover the LDR sensor
    - Make noise near the microphone
+   - Access pins A2, D4, D7, D8 and GND for the IO pins test
 
 ### Test Sequence
 
@@ -129,6 +131,13 @@ Sensors are tested automatically. The program will show the value read in real t
    - The test passes automatically when it detects sound
    - Press **SL** to skip if it doesn't work
 
+6. **IO Pins (A2, D4, D7, D8)**
+   - For each pin, the program will ask you to short the pin to GND
+   - Connect a wire or jumper between the specified pin and any GND pin on the board
+   - The test passes automatically when it detects the short circuit (pin reads LOW)
+   - Remove the short circuit before moving to the next pin
+   - Press **SL** to skip if a pin doesn't work
+
 #### 2. MkMk Mode Test
 
 1. The program will ask you to switch the **switch to MkMk Mode**
@@ -175,6 +184,10 @@ To restart the test, press the **RESET** button on the Arduino.
 | A3  | LDR (Light sensor) |
 | A6  | Temperature Sensor |
 | A7  | Microphone |
+| A2  | IO Pin (general purpose input/output) |
+| D4  | IO Pin (general purpose input/output) |
+| D7  | IO Pin (general purpose input/output) |
+| D8  | IO Pin (general purpose input/output) |
 
 ### MkMk Mode
 
@@ -279,7 +292,8 @@ test-fab-echidna.ino
 │   ├── testAcelerometro()
 │   ├── testLDR()
 │   ├── testTemperatura()
-│   └── testMicrofono()
+│   ├── testMicrofono()
+│   └── testIOPins()
 └── testModoMkMk()
 ```
 
@@ -294,6 +308,11 @@ test-fab-echidna.ino
   - Face up/down tests verify the Z axis by measuring gravity (±9.8 m/s²)
 - **Update frequency**: 500ms (configurable with `SENSOR_READ_DELAY`)
 - **Pull-up on buttons**: Internally activated
+- **IO Pins test**: Tests 4 general purpose pins (A2, D4, D7, D8) as digital inputs
+  - Pins configured with internal pull-up resistors (normally read HIGH)
+  - Test detects short circuit to GND (pin reads LOW)
+  - Each pin tested sequentially with 30-second timeout
+  - Allows manual failure indication with SL button
 - **Temperature conversion**: Formula `(ADCvalue * 0.4658) - 50.0` to get degrees Celsius
 - **Failure report**: The final report includes a detailed list of which specific tests failed
 
