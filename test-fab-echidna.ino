@@ -48,7 +48,7 @@
 #define LDR_THRESHOLD_DARK 30
 
 // Micrófono
-#define MIC_THRESHOLD_NOISE 50
+#define MIC_THRESHOLD_NOISE 1000
 
 // MkMk
 #define MKMK_THRESHOLD 100
@@ -855,8 +855,10 @@ void testMicrofono() {
   esperarBotonesLibres();
 
   Serial.println(F("\nHaga ruido cerca del microfono"));
+  Serial.println(F("(Presione SL si el test no pasa)"));
 
   bool passMic = false;
+  int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
     int valor = analogRead(PIN_MIC);
@@ -875,6 +877,19 @@ void testMicrofono() {
       delay(1000);
       break;
     }
+
+    // Detectar cambio de estado en SL (presión del botón)
+    int estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+    if (millis() - startTime > 1000 && estadoSL_actual != estadoSL_anterior) {
+      delay(50); // Anti-rebote
+      estadoSL_actual = digitalRead(PIN_BUTTON_SL);
+      if (estadoSL_actual != estadoSL_anterior) {
+        Serial.println(F("✗ Microfono FAIL (indicado por usuario)"));
+        delay(300);
+        break;
+      }
+    }
+    estadoSL_anterior = estadoSL_actual;
 
     delay(SENSOR_READ_DELAY);
   }
