@@ -855,18 +855,25 @@ void testMicrophone() {
   waitForButtonsReleased();
 
   Serial.println(F("\nMake noise near the microphone"));
+  Serial.println(F("(Average of 10 readings compared to threshold)"));
   Serial.println(F("(Press SL if the test doesn't pass)"));
 
   bool passMic = false;
   int estadoSL_anterior = digitalRead(PIN_BUTTON_SL);
   unsigned long startTime = millis();
   while (millis() - startTime < 30000) {
-    int valor = analogRead(PIN_MIC);
+    // Take 10 readings and calculate average
+    long sum = 0;
+    for (int i = 0; i < 10; i++) {
+      sum += analogRead(PIN_MIC);
+      delay(10);
+    }
+    int average = sum / 10;
 
-    Serial.print(F("Microphone: "));
-    Serial.println(valor);
+    Serial.print(F("Microphone (avg of 10): "));
+    Serial.println(average);
 
-    if (valor > MIC_THRESHOLD_NOISE) {
+    if (average > MIC_THRESHOLD_NOISE) {
       Serial.println(F("✓ Microphone OK"));
       passMic = true;
       delay(1000);
