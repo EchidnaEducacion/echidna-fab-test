@@ -275,26 +275,26 @@ test-fab-echidna.ino
 │   ├── Pin configuration
 │   └── Accelerometer initialization
 ├── loop()
-│   ├── testModoNormal()
-│   ├── testModoMkMk()
-│   └── reporteFinal()
+│   ├── testNormalMode()
+│   ├── testMkMkMode()
+│   └── finalReport()
 ├── Utility functions
-│   ├── apagarActuadores()
-│   ├── esperarBotonSR()
-│   ├── esperarBotonSL()
-│   └── preguntarSiNo()
+│   ├── turnOffActuators()
+│   ├── waitForButtonSR()
+│   ├── waitForButtonSL()
+│   └── askYesNo()
 ├── Actuator tests
 │   ├── testLEDs()
 │   ├── testLEDRGB()
-│   └── testZumbador()
+│   └── testBuzzer()
 ├── Sensor tests
 │   ├── testJoystick()
-│   ├── testAcelerometro()
+│   ├── testAccelerometer()
 │   ├── testLDR()
-│   ├── testTemperatura()
-│   ├── testMicrofono()
+│   ├── testTemperature()
+│   ├── testMicrophone()
 │   └── testIOPins()
-└── testModoMkMk()
+└── testMkMkMode()
 ```
 
 ## Technical Notes
