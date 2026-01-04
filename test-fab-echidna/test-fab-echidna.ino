@@ -43,25 +43,25 @@
 // SENSOR THRESHOLDS
 // ============================================
 // Joystick
-#define JOY_THRESHOLD_LOW 5
-#define JOY_THRESHOLD_HIGH 1018
+#define JOY_THRESHOLD_LOW 10
+#define JOY_THRESHOLD_HIGH 1013
 
 // Accelerometer (values in m/s²)
 #define ACCEL_THRESHOLD_LOW -7.8
 #define ACCEL_THRESHOLD_HIGH 7.8
 
 // LDR
-#define LDR_THRESHOLD_DARK 30
+#define LDR_THRESHOLD_DARK 50
 
 // Microphone
-#define MIC_THRESHOLD_NOISE 100
+#define MIC_THRESHOLD_NOISE 50
 
 // MkMk
 #define MKMK_THRESHOLD 100
 #define MKMK_MAX_ATTEMPTS 10
 
 // Reading update time
-#define SENSOR_READ_DELAY 500
+#define SENSOR_PRINT_DELAY 500
 
 // ============================================
 // GLOBAL VARIABLES
@@ -109,10 +109,10 @@ void setup() {
   pinMode(PIN_BUTTON_SL, INPUT_PULLUP);
 
   // Configure general purpose IO pins for digital input testing
-  pinMode(PIN_IO_A2, INPUT_PULLUP);
-  pinMode(PIN_IO_D4, INPUT_PULLUP);
-  pinMode(PIN_IO_D7, INPUT_PULLUP);
-  pinMode(PIN_IO_D8, INPUT_PULLUP);
+  pinMode(PIN_IO_A2, INPUT);
+  pinMode(PIN_IO_D4, INPUT);
+  pinMode(PIN_IO_D7, INPUT);
+  pinMode(PIN_IO_D8, INPUT);
 
   // Turn off all actuators
   turnOffActuators();
@@ -418,7 +418,7 @@ void testJoystick() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
   if (!passLeft && millis() - startTime >= 30000) {
     Serial.println(F("✗ Left TIMEOUT"));
@@ -454,7 +454,7 @@ void testJoystick() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
   if (!passRight && millis() - startTime >= 30000) {
     Serial.println(F("✗ Right TIMEOUT"));
@@ -490,7 +490,7 @@ void testJoystick() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
   if (!passUp && millis() - startTime >= 30000) {
     Serial.println(F("✗ Up TIMEOUT"));
@@ -526,7 +526,7 @@ void testJoystick() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
   if (!passDown && millis() - startTime >= 30000) {
     Serial.println(F("✗ Down TIMEOUT"));
@@ -582,7 +582,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   // Test Right (X > 7.8)
@@ -618,7 +618,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   // Test Up (Y > 7.8)
@@ -654,7 +654,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   // Test Down (Y < -7.8)
@@ -690,7 +690,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   // Test Face Up (Z > 7.8)
@@ -726,7 +726,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   // Test Face Down (Z < -7.8)
@@ -762,7 +762,7 @@ void testAccelerometer() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   bool accelOK = passLeft && passRight && passUp && passDown && passFaceUp && passFaceDown;
@@ -813,7 +813,7 @@ void testLDR() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   if (passLDR) {
@@ -906,7 +906,7 @@ void testMicrophone() {
     }
     previousSL_state = currentSL_state;
 
-    delay(SENSOR_READ_DELAY);
+    delay(SENSOR_PRINT_DELAY);
   }
 
   if (passMic) {
@@ -939,7 +939,7 @@ void testIOPins() {
     Serial.println(F(" ---"));
     Serial.print(F("Short pin "));
     Serial.print(ioNames[i]);
-    Serial.println(F(" to GND"));
+    Serial.println(F(" to +"));
     Serial.println(F("(Press SL if the test doesn't pass)"));
 
     bool passPin = false;
@@ -954,8 +954,8 @@ void testIOPins() {
       Serial.print(F(": "));
       Serial.println(value == HIGH ? "HIGH" : "LOW");
 
-      // Pass if pin reads LOW (shorted to GND)
-      if (value == LOW) {
+      // Pass if pin reads HIGH (shorted to +)
+      if (value == HIGH) {
         Serial.print(F("✓ Pin "));
         Serial.print(ioNames[i]);
         Serial.println(F(" OK"));
@@ -979,7 +979,7 @@ void testIOPins() {
       }
       previousSL_state = currentSL_state;
 
-      delay(SENSOR_READ_DELAY);
+      delay(SENSOR_PRINT_DELAY);
     }
 
     if (passPin) {
@@ -1076,7 +1076,7 @@ void testMkMkMode() {
 
       attempts++;
       if (attempts < MKMK_MAX_ATTEMPTS) {
-        delay(SENSOR_READ_DELAY);
+        delay(SENSOR_PRINT_DELAY);
       }
     }
 
@@ -1133,7 +1133,7 @@ void testMkMkMode() {
 
       attempts++;
       if (attempts < MKMK_MAX_ATTEMPTS) {
-        delay(SENSOR_READ_DELAY);
+        delay(SENSOR_PRINT_DELAY);
       }
     }
 
