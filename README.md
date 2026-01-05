@@ -67,7 +67,7 @@ If you don't have it installed, download Arduino IDE from [arduino.cc](https://w
    - Tilt the board
    - Cover the LDR sensor
    - Make noise near the microphone
-   - Access pins A2, D4, D7, D8 and GND for the IO pins test
+   - Access pins A2, D4, D7, D8 and + (VCC) for the IO pins test (you can use your fingers to touch the pins)
 
 ### Test Sequence
 
@@ -132,10 +132,10 @@ Sensors are tested automatically. The program will show the value read in real t
    - Press **SL** to skip if it doesn't work
 
 6. **IO Pins (A2, D4, D7, D8)**
-   - For each pin, the program will ask you to short the pin to GND
-   - Connect a wire or jumper between the specified pin and any GND pin on the board
-   - The test passes automatically when it detects the short circuit (pin reads LOW)
-   - Remove the short circuit before moving to the next pin
+   - For each pin, the program will ask you to short the pin to + (VCC)
+   - Connect a wire or jumper between the specified pin and any + pin on the board, or simply touch both pins with your fingers simultaneously
+   - The test passes automatically when it detects the connection (pin reads HIGH)
+   - Remove the connection before moving to the next pin
    - Press **SL** to skip if a pin doesn't work
 
 #### 2. MkMk Mode Test
@@ -309,8 +309,9 @@ test-fab-echidna.ino
 - **Update frequency**: 500ms (configurable with `SENSOR_READ_DELAY`)
 - **Pull-up on buttons**: Internally activated
 - **IO Pins test**: Tests 4 general purpose pins (A2, D4, D7, D8) as digital inputs
-  - Pins configured with internal pull-up resistors (normally read HIGH)
-  - Test detects short circuit to GND (pin reads LOW)
+  - Pins configured as INPUT without pull-up resistors (normally read LOW)
+  - Test detects connection to + (VCC) when pin reads HIGH
+  - Connection can be made with a wire/jumper or by touching both pins with fingers
   - Each pin tested sequentially with 30-second timeout
   - Allows manual failure indication with SL button
 - **Temperature conversion**: Formula `(ADCvalue * 0.4658) - 50.0` to get degrees Celsius
